@@ -1,0 +1,708 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     28662,        700]
+NotebookOptionsPosition[     23658,        589]
+NotebookOutlinePosition[     26795,        669]
+CellTagsIndexPosition[     26752,        666]
+WindowTitle->EasyIDE: PackageFramework
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["PackageFramework", "Section",
+ CellChangeTimes->{{3.7827540437939157`*^9, 
+  3.7827540464345703`*^9}},ExpressionUUID->"0da4237d-7424-46c0-92f8-\
+cc8c9118a8a5"],
+
+Cell["\<\
+A framework for extending the built-in BeginPackage/EndPackage-style package \
+mechanism.
+Provides developer utilities so that packages may be developed with less \
+effort and more features.\
+\>", "Text",
+ CellChangeTimes->{{3.7827541241525717`*^9, 3.782754161040722*^9}, {
+  3.7827542225596724`*^9, 
+  3.782754226616703*^9}},ExpressionUUID->"fea5711b-0bfb-4ebb-89e6-\
+759e96141fe6"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"PackageFrameworkPackage", "::", "usage"}], "=", "\n", "  ", 
+   "\"\<PackageFrameworkPackage[ops] represents a package and provides \
+methods on this package\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"LoadPackage", "::", "usage"}], "=", "\n", "\t", 
+  "\"\<LoadPackage[pkg] loads a PackageFrameworkPackage\>"}]}], "Code",
+ CellChangeTimes->{
+  3.782754035627187*^9, {3.782758121093128*^9, 
+   3.782758167035838*^9}},ExpressionUUID->"0c5eb8c7-3de3-4316-9f02-\
+fce91d44d7fc"],
+
+Cell[CellGroupData[{
+
+Cell["Private", "Subsection",
+ CellChangeTimes->{{3.782754252454818*^9, 
+  3.7827542535194407`*^9}},ExpressionUUID->"c4ab7271-60df-4158-a55b-\
+b3802bd5a1fd"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}], ";"}]], "Code",ExpressionU\
+UID->"d9b6ab64-8503-422b-bb38-98df1244d64b"],
+
+Cell[CellGroupData[{
+
+Cell["PackageFrameworkPackage", "Subsubsection",ExpressionUUID->"0ee47edd-8022-4df9-9c8b-310454810e49"],
+
+Cell[CellGroupData[{
+
+Cell["getPackageFrameworkConfig", "Subsubsubsection",ExpressionUUID->"ba29830c-a413-490f-a645-bc3b4f66944f"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"getPackageFrameworkConfig", "::", "doc"}], "=", 
+   "\"\<\n\tMakes it possible to support the legacy design from when this was \
+all part of BTools\nand I expected a Config folder at the root of every \
+package\n\nThe new design attempts to unify my two major use cases: \n\t1) \
+making new packages with my standard layout and which will auto-context for \
+you\n\t2) hooking into existing packages for extension and introspection\n\
+\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"getPackageFrameworkConfig", "[", 
+   RowBox[{"ops_", ",", " ", "paclet_", ",", " ", "rootDirectory_"}], "]"}], ":=",
+   "\n", "  ", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"pacletData", " ", "=", " ", "paclet"}], ",", " ", 
+      RowBox[{"otherSettings", " ", "=", " ", 
+       RowBox[{"{", "}"}]}]}], "}"}], ",", "\n", "     ", 
+    RowBox[{
+     RowBox[{"Switch", "[", 
+      RowBox[{
+      "pacletData", ",", "\n", "       ", "None", ",", "\n", "         ", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+        "proceed", " ", "to", " ", "try", " ", "to", " ", "find", " ", "the", 
+         " ", "missing", " ", 
+         RowBox[{"PacletInfo", ".", "m"}], " ", "or", " ", 
+         RowBox[{"PacletInfo", ".", "wl"}], " ", "file"}], " ", "*)"}], "\n", 
+       "         ", 
+       RowBox[{"pacletData", " ", "=", " ", "\n", "           ", 
+        RowBox[{"Which", "[", "\n", "             ", 
+         RowBox[{
+          RowBox[{"FileExistsQ", "[", 
+           RowBox[{"FileNameJoin", "@", 
+            RowBox[{"{", 
+             RowBox[{"rootDirectory", ",", " ", "\"\<PacletInfo.m\>\""}], 
+             "}"}]}], "]"}], ",", "\n", "               ", 
+          RowBox[{
+          "PacletManager`PacletInformation", "@", "\n", "                 ", 
+           RowBox[{"FileNameJoin", "@", 
+            RowBox[{"{", 
+             RowBox[{"rootDirectory", ",", " ", "\"\<PacletInfo.m\>\""}], 
+             "}"}]}]}], ",", "\n", "             ", 
+          RowBox[{"FileExistsQ", "[", 
+           RowBox[{"FileNameJoin", "@", 
+            RowBox[{"{", 
+             RowBox[{"rootDirectory", ",", " ", "\"\<PacletInfo.wl\>\""}], 
+             "}"}]}], "]"}], ",", "\n", "               ", 
+          RowBox[{
+          "PacletManager`PacletInformation", "@", "\n", "                 ", 
+           RowBox[{"FileNameJoin", "@", 
+            RowBox[{"{", 
+             RowBox[{"rootDirectory", ",", " ", "\"\<PacletInfo.wl\>\""}], 
+             "}"}]}]}], ",", "\n", "             ", "True", ",", "\n", 
+          "               ", 
+          RowBox[{"<|", "|>"}]}], "\n", "             ", "]"}]}], ",", "\n", 
+       "       ", 
+       RowBox[{"_PacletManager`Paclet", "|", "_System`PacletObject"}], ",", 
+       "\n", "         ", 
+       RowBox[{"pacletData", " ", "=", " ", 
+        RowBox[{"PacletManager`PacletInformation", "@", "pacletData"}]}]}], 
+      "\n", "       ", "]"}], ";", "\n", "    ", 
+     RowBox[{"pacletData", "=", "\n", "      ", 
+      RowBox[{"Association", "@", "\n", "        ", 
+       RowBox[{"Replace", "[", "\n", "          ", 
+        RowBox[{
+         RowBox[{"Lookup", "[", 
+          RowBox[{"pacletData", ",", " ", "\"\<Extensions\>\"", ",", " ", 
+           RowBox[{"{", "}"}]}], "]"}], ",", "\n", "          ", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"key_String", ",", " ", "ops___"}], "}"}], ":>", "\n", 
+          "            ", 
+          RowBox[{"(", 
+           RowBox[{"key", "->", 
+            RowBox[{"Association", "@", 
+             RowBox[{"Flatten", "@", 
+              RowBox[{"{", "ops", "}"}]}]}]}], ")"}]}], ",", "\n", 
+         "          ", "1"}], "\n", "          ", "]"}]}]}], ";", "\n", 
+     "    ", 
+     RowBox[{"Which", "[", "\n", "     ", 
+      RowBox[{
+       RowBox[{"FileExistsQ", "[", 
+        RowBox[{"FileNameJoin", "@", 
+         RowBox[{"{", 
+          RowBox[{
+          "rootDirectory", ",", " ", "\"\<Config\>\"", ",", " ", 
+           "\"\<LoadInfo.m\>\""}], "}"}]}], "]"}], ",", "\n", "       ", 
+       RowBox[{"PacletManager`PacletInformation", "@", "\n", "         ", 
+        RowBox[{"FileNameJoin", "@", 
+         RowBox[{"{", 
+          RowBox[{
+          "rootDirectory", ",", " ", "\"\<Config\>\"", ",", " ", 
+           "\"\<LoadInfo.m\>\""}], "}"}]}]}], ",", "\n", "     ", 
+       RowBox[{"FileExistsQ", "[", 
+        RowBox[{"FileNameJoin", "@", 
+         RowBox[{"{", 
+          RowBox[{
+          "rootDirectory", ",", " ", "\"\<Config\>\"", ",", " ", 
+           "\"\<LoadInfo.wl\>\""}], "}"}]}], "]"}], ",", "\n", "       ", 
+       RowBox[{"PacletManager`PacletInformation", "@", "\n", "         ", 
+        RowBox[{"FileNameJoin", "@", 
+         RowBox[{"{", 
+          RowBox[{
+          "rootDirectory", ",", " ", "\"\<Config\>\"", ",", " ", 
+           "\"\<LoadInfo.wl\>\""}], "}"}]}]}]}], "\n", "     ", "]"}], ";", 
+     "\n", "    ", 
+     RowBox[{
+      RowBox[{"Join", "[", "\n", "       ", 
+       RowBox[{
+        RowBox[{"<|", "\n", "         ", 
+         RowBox[{
+          RowBox[{"\"\<Name\>\"", "->", 
+           RowBox[{"Lookup", "[", 
+            RowBox[{"pacletData", ",", " ", "\"\<Name\>\""}], "]"}]}], ",", 
+          "\n", "         ", 
+          RowBox[{"\"\<Location\>\"", "->", 
+           RowBox[{"Lookup", "[", 
+            RowBox[{"pacletData", ",", " ", "\"\<Location\>\""}], "]"}]}]}], 
+         "\n", "         ", "|>"}], ",", "\n", "       ", 
+        RowBox[{"Replace", "[", "\n", "         ", 
+         RowBox[{
+          RowBox[{"Lookup", "[", 
+           RowBox[{
+            RowBox[{"Lookup", "[", 
+             RowBox[{"pacletData", ",", " ", "\"\<Kernel\>\"", ",", " ", 
+              RowBox[{"<|", "|>"}]}], "]"}], ",", " ", "\"\<Context\>\""}], 
+           "]"}], ",", "\n", "         ", 
+          RowBox[{"{", "\n", "           ", 
+           RowBox[{
+            RowBox[{"m_Missing", ":>", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"FileBaseName", "@", "rootDirectory"}], "<>", 
+               "\"\<`\>\""}], "}"}]}], ",", "\n", "           ", 
+            RowBox[{"e_", ":>", 
+             RowBox[{"Flatten", "@", 
+              RowBox[{"{", "e", "}"}]}]}]}], "\n", "           ", "}"}]}], 
+         "\n", "         ", "]"}], ",", "\n", "       ", 
+        RowBox[{"Lookup", "[", 
+         RowBox[{"pacletData", ",", " ", "\"\<PackageFramework\>\"", ",", " ", 
+          RowBox[{"<|", "|>"}]}], "]"}]}], "\n", "       ", "]"}], "//", 
+      RowBox[{
+       RowBox[{"Merge", "[", "\n", "       ", 
+        RowBox[{
+         RowBox[{"Flatten", "@", 
+          RowBox[{"{", "\n", "         ", 
+           RowBox[{"ops", ",", "\n", "         ", "#", ",", "\n", "         ", 
+            RowBox[{"Options", "[", "PackageFrameworkPackage", "]"}]}], "\n", 
+           "         ", "}"}]}], ",", "\n", "       ", "First"}], "\n", 
+        "       ", "]"}], "&"}]}]}]}], "\n", "    ", "]"}]}]}], "Code",Express\
+ionUUID->"feb3a948-dfd7-40c2-a840-fff2694abd47"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["PackageFrameworkPackage", "Subsubsubsection",ExpressionUUID->"14c53151-2480-4b35-9317-59d04de2e410"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"PackageFrameworkPackage", "::", "doc"}], "=", 
+   "\"\<\nCan be initialized directly from an association, from a paclet, or \
+from a directory\n\nSupports the following keys:\n  Name: Package name\n  \
+Location: Package location\n  Context: Root context(s) to use and from which \
+to derive subcontexts\n  PackageRoot: where to find packages (defaults to \
+top-level Package directory)\n  ResourceRoot: where to find resources \
+(defaults to top-level Resource directory)\n  LoadInfo: \n    Mode: the \
+loading mechanism (Dependency or Primary) for the package\n    FEHidden: the \
+list of packages that should be hidden from the FE\n    PackageScope: the \
+list of packages that should be package scoped and not exposable\n    \
+PreLoad: the list of packages that should be loaded when the package is \
+loaded\n    Dependencies: the list of dependencies (with suboptions) for the \
+package\n  BundleInfo:\n    RemovePaths: the set of paths to be removed from \
+the bundled package\n    RemovePatterns: the set of path patterns to be \
+remove from the bundled package\n\>\""}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Options", "[", "PackageFrameworkPackage", "]"}], "=", "\n", "  ", 
+   
+   RowBox[{"{", "\n", "    ", 
+    RowBox[{
+     RowBox[{"\"\<Name\>\"", "->", "Automatic"}], ",", "\n", "    ", 
+     RowBox[{"\"\<Location\>\"", "->", "Automatic"}], ",", "\n", "    ", 
+     RowBox[{"\"\<Context\>\"", "->", "Automatic"}], ",", "\n", "    ", 
+     RowBox[{"\"\<PackageRoot\>\"", "->", "\"\<Packages\>\""}], ",", "\n", 
+     "    ", 
+     RowBox[{"\"\<ResourceRoot\>\"", "->", "\"\<Resources\>\""}], ",", "\n", 
+     "    ", 
+     RowBox[{"\"\<LoadInfo\>\"", "->", 
+      RowBox[{"{", "\n", "      ", 
+       RowBox[{
+        RowBox[{"\"\<Mode\>\"", "->", "\"\<Primary\>\""}], ",", "\n", 
+        "      ", 
+        RowBox[{"\"\<FEHidden\>\"", "->", 
+         RowBox[{"{", "}"}]}], ",", "\n", "      ", 
+        RowBox[{"\"\<PackageScope\>\"", "->", 
+         RowBox[{"{", "}"}]}], ",", "\n", "      ", 
+        RowBox[{"\"\<PreLoad\>\"", "->", 
+         RowBox[{"{", "}"}]}], ",", "\n", "      ", 
+        RowBox[{"\"\<Dependencies\>\"", "->", 
+         RowBox[{"{", "}"}]}]}], "\n", "      ", "}"}]}], ",", "\n", "    ", 
+     RowBox[{"\"\<BundleInfo\>\"", "->", 
+      RowBox[{"{", "\n", "      ", 
+       RowBox[{
+        RowBox[{"\"\<RemovePaths\>\"", " ", "->", " ", 
+         RowBox[{"{", 
+          RowBox[{
+          "\"\<Private\>\"", ",", " ", "\"\<project\>\"", ",", " ", 
+           "\"\<GitHub\>\"", ",", " ", "\"\<.git\>\""}], "}"}]}], ",", " ", 
+        "\n", "      ", 
+        RowBox[{"\"\<RemovePatterns\>\"", " ", "->", " ", 
+         RowBox[{"{", "\n", "         ", 
+          RowBox[{
+          "\"\<Packages/*.nb\>\"", ",", " ", "\n", "         ", 
+           "\"\<Packages/*/*.nb\>\"", ",", " ", "\n", "         ", 
+           "\"\<Packages/*/*/*.nb\>\"", ",", " ", "\n", "         ", 
+           "\"\<.DS_Store\>\""}], "\n", "         ", "}"}]}]}], "\n", 
+       "      ", "}"}]}]}], "\n", "    ", "}"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"PackageFrameworkPackage", "[", "\n", "  ", 
+   RowBox[{
+    RowBox[{"pkg", ":", 
+     RowBox[{"_PacletManager`Paclet", "|", "_System`PacletObject"}]}], ",", 
+    "\n", "  ", 
+    RowBox[{"ops", ":", 
+     RowBox[{"OptionsPattern", "[", "]"}]}]}], "\n", "  ", "]"}], ":=", "\n", 
+  "  ", 
+  RowBox[{"PackageFrameworkPackage", "@", "\n", "    ", 
+   RowBox[{"getPackageFrameworkConfig", "[", 
+    RowBox[{
+     RowBox[{"{", "ops", "}"}], ",", " ", "pkg", ",", " ", 
+     RowBox[{"pkg", "[", "\"\<Location\>\"", "]"}]}], "]"}]}]}], "\n", 
+ RowBox[{
+  RowBox[{"PackageFrameworkPackage", "[", "\n", "  ", 
+   RowBox[{
+    RowBox[{"loc", ":", 
+     RowBox[{"_String", "?", "DirectoryQ"}]}], ",", "\n", "  ", 
+    RowBox[{"ops", ":", 
+     RowBox[{"OptionsPattern", "[", "]"}]}]}], "\n", "  ", "]"}], ":=", "\n", 
+  "  ", 
+  RowBox[{"PackageFrameworkPackage", "@", "\n", "    ", 
+   RowBox[{"getPackageFrameworkConfig", "[", 
+    RowBox[{
+     RowBox[{"{", "ops", "}"}], ",", " ", "None", ",", " ", "loc"}], 
+    "]"}]}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PackageFrameworkPackage", "[", "\n", "  ", 
+    RowBox[{"ops", ":", 
+     RowBox[{"OptionsPattern", "[", "]"}]}], "\n", "  ", "]"}], ":=", "\n", 
+   "  ", 
+   RowBox[{"With", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"loc", "=", 
+       RowBox[{"OptionValue", "[", "\"\<Location\>\"", "]"}]}], "}"}], ",", 
+     "\n", "    ", 
+     RowBox[{
+      RowBox[{"PackageFrameworkPackage", "@", "\n", "      ", 
+       RowBox[{"getPackageFrameworkConfig", "[", 
+        RowBox[{
+         RowBox[{"{", "ops", "}"}], ",", " ", "None", ",", " ", "loc"}], 
+        "]"}]}], "/;", 
+      RowBox[{
+       RowBox[{"StringQ", "[", "loc", "]"}], "&&", 
+       RowBox[{"DirectoryQ", "[", "loc", "]"}]}]}]}], "\n", "    ", "]"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PackageFrameworkPackage", "[", "a_Association", "]"}], "?", 
+   RowBox[{"(", "\n", "  ", 
+    RowBox[{"Function", "[", 
+     RowBox[{"Null", ",", " ", 
+      RowBox[{"Not", "@", 
+       RowBox[{"System`Private`ValidQ", "[", 
+        RowBox[{"Unevaluated", "[", "#", "]"}], "]"}]}], ",", " ", 
+      "HoldFirst"}], "]"}], "\n", "  ", ")"}]}], ":=", "\n", "  ", 
+  RowBox[{"With", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"loc", "=", 
+      RowBox[{"a", "[", "\"\<Location\>\"", "]"}]}], "}"}], ",", "\n", "    ", 
+    RowBox[{
+     RowBox[{"With", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"config", "=", 
+         RowBox[{"getPackageFrameworkConfig", "[", 
+          RowBox[{
+           RowBox[{"Normal", "[", "a", "]"}], ",", " ", "None", ",", " ", 
+           "loc"}], "]"}]}], "}"}], ",", "\n", "      ", 
+       RowBox[{"System`Private`SetValid", "@", 
+        RowBox[{"Unevaluated", "@", 
+         RowBox[{"PackageFrameworkPackage", "[", "config", "]"}]}]}]}], "\n", 
+      "      ", "]"}], "/;", 
+     RowBox[{
+      RowBox[{"StringQ", "[", "loc", "]"}], "&&", 
+      RowBox[{"DirectoryQ", "[", "loc", "]"}]}]}]}], "\n", "    ", 
+   "]"}]}]}], "Code",
+ CellChangeTimes->{{3.7827592498029137`*^9, 
+  3.782759252547299*^9}},ExpressionUUID->"bcd6b601-287c-495c-9bdd-\
+e0840c1fbd06"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Accessors", "Subsubsubsection",
+ CellChangeTimes->{{3.7827761806916733`*^9, 
+  3.782776186156543*^9}},ExpressionUUID->"a4dae68e-c70e-4e4e-8289-\
+b8995b411f24"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"PFPackageOption", "[", 
+    RowBox[{
+     RowBox[{"PackageFrameworkPackage", "[", "a_Association", "]"}], ",", " ", 
+     RowBox[{"keys", ":", "__String"}]}], "]"}], ":=", "\n", "  ", 
+   RowBox[{"Fold", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"Lookup", "[", 
+       RowBox[{"#", ",", " ", "#2", ",", " ", 
+        RowBox[{"Return", "[", 
+         RowBox[{
+          RowBox[{"Missing", "[", 
+           RowBox[{"\"\<KeyAbsent\>\"", ",", " ", "#2"}], "]"}], ",", " ", 
+          "Fold"}], "]"}]}], "]"}], "&"}], ",", " ", "a", ",", " ", 
+     RowBox[{"{", "keys", "}"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"PFPackageSetOption", "[", 
+   RowBox[{
+    RowBox[{"PackageFrameworkPackage", "[", "a_Association", "]"}], ",", " ", 
+    
+    RowBox[{
+     RowBox[{"{", "keys__String", "}"}], "\[Rule]", "value_"}]}], "]"}], ":=",
+   "\n", "  ", 
+  RowBox[{"With", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"aa", "=", 
+      RowBox[{"ReplacePart", "[", 
+       RowBox[{"a", ",", " ", 
+        RowBox[{
+         RowBox[{"{", "keys", "}"}], "\[Rule]", "value"}]}], "]"}]}], "}"}], 
+    ",", "\n", "    ", 
+    RowBox[{"System`Private`SetValid", "@", 
+     RowBox[{"Unevaluated", "@", 
+      RowBox[{"PackageFrameworkPackage", "[", "aa", "]"}]}]}]}], "\n", "    ",
+    "]"}]}]}], "Code",
+ CellChangeTimes->{{3.7827764154995527`*^9, 
+  3.7827765252097816`*^9}},ExpressionUUID->"a3a70068-5469-473f-a2c4-\
+aa8db0cee823"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"p_PackageFrameworkPackage", "?", "SystemPrivate`ValidQ"}], "[", 
+   RowBox[{"keys", ":", "__String"}], "]"}], ":=", "\n", "  ", 
+  RowBox[{"PFPackageOption", "[", 
+   RowBox[{"p", ",", " ", "keys"}], "]"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"p_PackageFrameworkPackage", "?", "SystemPrivate`ValidQ"}], "[", 
+   RowBox[{"keys", ":", "__String"}], "]"}], ":=", "\n", "  ", 
+  RowBox[{"PFPackageOption", "[", 
+   RowBox[{"p", ",", " ", "keys"}], "]"}]}]}], "Code",
+ CellChangeTimes->{{3.782776116386154*^9, 3.78277617838945*^9}, {
+  3.782776271179879*^9, 3.782776305211473*^9}, {3.782776381296604*^9, 
+  3.782776411973948*^9}, {3.782776530459983*^9, 
+  3.7827765467677927`*^9}},ExpressionUUID->"36c6e43f-db72-4d8f-813a-\
+aec19e94c19e"],
+
+Cell[BoxData[{
+ RowBox[{"PackageFrameworkPackageMutate", "//", "ClearAll"}], "\n", 
+ RowBox[{"PackageFrameworkPackageMutate", "~", "SetAttributes", "~", 
+  "HoldAllComplete"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"PackageFrameworkPackageMutate", "[", "\n", "  ", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"s_Symbol", "?", "SystemPrivate`ValidQ"}], "[", 
+      RowBox[{"keys", ":", "__String"}], "]"}], "=", "value_"}], "\n", "  ", 
+    "]"}], ":=", "\n", "  ", 
+   RowBox[{"(", 
+    RowBox[{"s", "=", 
+     RowBox[{"PFPackageSetOption", "[", 
+      RowBox[{"s", ",", " ", 
+       RowBox[{
+        RowBox[{"{", "keys", "}"}], "\[Rule]", "value"}]}], "]"}]}], ")"}]}], 
+  ";"}], "\n", 
+ RowBox[{
+  RowBox[{"PackageFrameworkPackageMutate", "[", "___", "]"}], ":=", 
+  "Language`MutationFallthrough"}]}], "Code",
+ CellChangeTimes->{{3.782776116386154*^9, 3.782776250669776*^9}, {
+  3.7827763165228367`*^9, 3.78277637382653*^9}, {3.782776550975606*^9, 
+  3.782776563304513*^9}, {3.7827784929634237`*^9, 
+  3.782778494591633*^9}},ExpressionUUID->"00b4d7ac-cbdb-48c7-a452-\
+6c5259eab03a"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["LoadPackage", "Subsubsection",
+ CellChangeTimes->{{3.782758113324732*^9, 
+  3.782758114740642*^9}},ExpressionUUID->"765f3e66-998f-40b2-acef-\
+5216ce28fae8"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"LoadPackage", "[", "\n", "  ", 
+   RowBox[{"pkg_PackageFrameworkPackage", ",", " ", "\n", "  ", 
+    RowBox[{"parent", ":", 
+     RowBox[{"_PackageFrameworkPackage", "|", "Automatic", "|", "None"}], ":",
+      "None"}]}], "\n", "  ", "]"}], ":=", "\n", "  ", 
+  RowBox[{"With", "[", "\n", "    ", 
+   RowBox[{
+    RowBox[{"{", "\n", "      ", 
+     RowBox[{
+      RowBox[{"$Name", "=", 
+       RowBox[{"PackageName", "[", "pkg", "]"}]}], ",", " ", "\n", "  ", 
+      "    ", 
+      RowBox[{"$Head", "=", 
+       RowBox[{"PackageHead", "[", "pkg", "]"}]}], ",", "\n", "  ", "    ", 
+      RowBox[{"$DependencyLoad", "=", 
+       RowBox[{
+        RowBox[{"pkg", "[", 
+         RowBox[{"\"\<LoadInfo\>\"", ",", " ", "\"\<Mode\>\""}], "]"}], 
+        "===", "\"\<Dependency\>\""}]}]}], "\n", "      ", "}"}], ",", "\n", 
+    "      ", 
+    RowBox[{"Block", "[", "\n", "        ", 
+     RowBox[{
+      RowBox[{"{", "\n", "          ", 
+       RowBox[{
+        RowBox[{"$ParentPackage", "=", "\n", "            ", 
+         RowBox[{"Replace", "[", 
+          RowBox[{"parent", ",", " ", "\n", "              ", 
+           RowBox[{"Automatic", ":>", 
+            RowBox[{"If", "[", 
+             RowBox[{
+             "$DependencyLoad", ",", " ", "$Package", ",", " ", "None"}], 
+             "]"}]}]}], "\n", "              ", "]"}]}], ",", "\n", 
+        "          ", 
+        RowBox[{"$Package", "=", "pkg"}], ",", "\n", "          ", 
+        "$ParentContext"}], "\n", "          ", "}"}], ",", "\n", "        ", 
+      
+      RowBox[{
+       RowBox[{"$ParentContext", " ", "=", " ", "\n", "          ", 
+        RowBox[{
+         RowBox[{"Replace", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"l_", ",", " ", "___"}], "}"}], "\[RuleDelayed]", "l"}], 
+          "]"}], "@", "\n", "            ", 
+         RowBox[{"Replace", "[", 
+          RowBox[{"$ParentPackage", ",", " ", "\n", "              ", 
+           RowBox[{"{", "\n", "                ", 
+            RowBox[{
+             RowBox[{"None", "\[Rule]", "\"\<\>\""}], ",", "\n", "  ", "  ", 
+             "            ", 
+             RowBox[{"e_", "\[RuleDelayed]", 
+              RowBox[{"e", "[", "\"\<Context\>\"", "]"}]}]}], "\n", 
+            "                ", "}"}]}], "\n", "              ", "]"}]}]}], 
+       ";", "\n", "        ", 
+       RowBox[{
+        RowBox[{"$Package", "[", "\"\<TopLevelLoad\>\"", "]"}], "=", "\n", 
+        "          ", 
+        RowBox[{"If", "[", 
+         RowBox[{
+         "$DependencyLoad", ",", "\n", "            ", "False", ",", "\n", 
+          "            ", 
+          RowBox[{"MemberQ", "[", 
+           RowBox[{"$ContextPath", ",", " ", "\"\<Global`\>\""}], "]"}]}], 
+         "\n", "            ", "]"}]}], ";", "\n", "        ", 
+       RowBox[{"Internal`WithLocalSettings", "[", "\n", "          ", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"BeginPackage", "[", "\"\<`PackageFramework`\>\"", "]"}], 
+          ";", "\n", "          ", 
+          RowBox[{"ClearAll", "[", "$Head", "]"}], ";"}], ",", "\n", 
+         "        ", "\n", "        ", "\n", "          ", 
+         RowBox[{
+          RowBox[{"EndPackage", "[", "]"}], ";"}]}], "\n", "          ", 
+        "]"}]}]}], "\n", "      ", "]"}]}], "\n", "    ", "]"}]}]], "Code",
+ CellChangeTimes->{{3.78277503289382*^9, 3.782775040018221*^9}, {
+   3.782775196491555*^9, 3.782775340458049*^9}, {3.7827756521273117`*^9, 
+   3.782775749234301*^9}, 3.782775839276018*^9, {3.782775894211445*^9, 
+   3.78277609196651*^9}, {3.7827785262661963`*^9, 3.782778657323908*^9}, 
+   3.782779021346775*^9, {3.7827790964674788`*^9, 
+   3.782779147516077*^9}},ExpressionUUID->"9c6081c5-b48b-48a7-93b2-\
+21178bc603cf"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["End Private", "Subsection",
+ CellChangeTimes->{{3.7827542377989407`*^9, 
+  3.782754262767384*^9}},ExpressionUUID->"640c6fe9-be33-454a-aafc-\
+dec91cec7fea"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"End", "[", "]"}], ";"}]], "Code",
+ CellChangeTimes->{
+  3.7827542355675917`*^9},ExpressionUUID->"c1de777d-3728-48e2-b342-\
+f9e972e1d858"]
+}, Closed]]
+}, Open  ]]
+},
+NotebookEventActions->{{"MenuCommand", "Save"} :> 
+  EasyIDE`Notebooks`Manipulation`IDESave[
+    EvaluationNotebook[]], 
+  "MouseDown" :> (Needs["EasyIDE`"]; 
+   EasyIDE`Notebooks`Manipulation`EnsureNotebookUpdated[
+     EvaluationNotebook[]]), PassEventsDown -> True, EvaluationOrder -> After},
+WindowSize->{808, 755},
+WindowMargins->{{9, Automatic}, {Automatic, 1}},
+WindowTitle->"EasyIDE: PackageFramework",
+TaggingRules->{
+ "EasyIDE" -> {
+   "Project" -> {
+     "Directory" -> 
+      "/Users/Mark/Documents/Wolfram \
+Mathematica/Applications/PackageFramework/"}, 
+    "Tabs" -> {
+     "Object.wl" -> {
+       "File" -> 
+        "/Users/Mark/Documents/Wolfram \
+Mathematica/Applications/PackageFramework/Packages/Object.wl", "Modified" -> 
+        True}, "Autocomplete" -> {
+       "File" -> 
+        "/Users/Mark/Documents/Wolfram \
+Mathematica/Applications/PackageFramework/Packages/Operations/Autocomplete.\
+wl", "Modified" -> True}, 
+      "Constants" -> {
+       "File" -> 
+        "/Users/Mark/Documents/Wolfram \
+Mathematica/Applications/PackageFramework/Packages/Operations/Constants.wl", 
+        "Modified" -> True}, 
+      "MainLoader" -> {
+       "File" -> 
+        "/Users/Mark/Documents/Wolfram \
+Mathematica/Applications/PackageFramework/Resources/MainLoader.wl", 
+        "Modified" -> True}, 
+      "PackageProcessing" -> {
+       "File" -> 
+        "/Users/Mark/Documents/Wolfram \
+Mathematica/Applications/PackageFramework/Packages/Operations/\
+PackageProcessing.wl", "Modified" -> True}}, 
+    "FileViewer" -> {"Visible" -> False}, "Toolbars" -> {"Column" -> GridBox[{{
+          GridBox[{{
+             PaneBox["", ImageSize -> {0, 15}], 
+             ButtonBox[
+             "", BaseStyle -> "ToolbarShowButton", ButtonData -> "Package"]}},
+            BaseStyle -> "ToolbarCell"]}}, BaseStyle -> "Toolbars"], 
+      "Tags" -> {}, "Cells" -> {}}, "ActiveTab" -> "Object.wl", 
+    "Options" -> {
+     WindowSize -> {808, 755}, 
+      WindowMargins -> {{Automatic, 260}, {Automatic, 4}}, Visible -> False, 
+      FrontEndVersion -> "12.0 for Mac OS X x86 (64-bit) (April 8, 2019)", 
+      StyleDefinitions -> "Package.nb"}, 
+    "Styles" -> {
+     "UnthemedStylesheet" -> 
+      FrontEnd`FileName[{"EasyIDE", "Extensions"}, "-Package.nb"], "Theme" -> 
+      "LightMode", "StyleSheet" -> 
+      FrontEnd`FileName[{"EasyIDE", "Extensions", "LightMode"}, 
+        "Package.nb"]}, "FileToolbar" -> "Package", "AutoGeneratePackage" -> 
+    False, "SavingAction" -> None}, "IndentCharacter" -> "  "},
+FrontEndVersion->"12.0 for Mac OS X x86 (64-bit) (April 8, 2019)",
+StyleDefinitions->Notebook[{
+   Cell[
+    StyleData[
+    StyleDefinitions -> 
+     FrontEnd`FileName[{"EasyIDE", "Extensions", "LightMode"}, 
+       "Package.nb"]]]}, Visible -> False, 
+  TaggingRules -> {"EasyIDE" -> {"FileViewer" -> {"Visible" -> False}}}, 
+  FrontEndVersion -> "12.0 for Mac OS X x86 (64-bit) (April 8, 2019)", 
+  StyleDefinitions -> "PrivateStylesheetFormatting.nb"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[619, 23, 165, 3, 67, "Section",ExpressionUUID->"0da4237d-7424-46c0-92f8-cc8c9118a8a5"],
+Cell[787, 28, 393, 9, 58, "Text",ExpressionUUID->"fea5711b-0bfb-4ebb-89e6-759e96141fe6"],
+Cell[1183, 39, 521, 12, 113, "Code",ExpressionUUID->"0c5eb8c7-3de3-4316-9f02-fce91d44d7fc"],
+Cell[CellGroupData[{
+Cell[1729, 55, 157, 3, 54, "Subsection",ExpressionUUID->"c4ab7271-60df-4158-a55b-b3802bd5a1fd"],
+Cell[1889, 60, 148, 3, 49, "Code",ExpressionUUID->"d9b6ab64-8503-422b-bb38-98df1244d64b"],
+Cell[CellGroupData[{
+Cell[2062, 67, 103, 0, 45, "Subsubsection",ExpressionUUID->"0ee47edd-8022-4df9-9c8b-310454810e49"],
+Cell[CellGroupData[{
+Cell[2190, 71, 108, 0, 32, "Subsubsubsection",ExpressionUUID->"ba29830c-a413-490f-a645-bc3b4f66944f"],
+Cell[2301, 73, 7019, 154, 70, "Code",ExpressionUUID->"feb3a948-dfd7-40c2-a840-fff2694abd47"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[9357, 232, 106, 0, 26, "Subsubsubsection",ExpressionUUID->"14c53151-2480-4b35-9317-59d04de2e410"],
+Cell[9466, 234, 6267, 144, 1499, "Code",ExpressionUUID->"bcd6b601-287c-495c-9bdd-e0840c1fbd06"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[15770, 383, 165, 3, 32, "Subsubsubsection",ExpressionUUID->"a4dae68e-c70e-4e4e-8289-b8995b411f24"],
+Cell[15938, 388, 1476, 41, 155, "Code",ExpressionUUID->"a3a70068-5469-473f-a2c4-aa8db0cee823"],
+Cell[17417, 431, 786, 17, 113, "Code",ExpressionUUID->"36c6e43f-db72-4d8f-813a-aec19e94c19e"],
+Cell[18206, 450, 1084, 26, 176, "Code",ExpressionUUID->"00b4d7ac-cbdb-48c7-a452-6c5259eab03a"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[19339, 482, 162, 3, 45, "Subsubsection",ExpressionUUID->"765f3e66-998f-40b2-acef-5216ce28fae8"],
+Cell[19504, 487, 3741, 82, 890, "Code",ExpressionUUID->"9c6081c5-b48b-48a7-93b2-21178bc603cf"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[23294, 575, 161, 3, 54, "Subsection",ExpressionUUID->"640c6fe9-be33-454a-aafc-dec91cec7fea"],
+Cell[23458, 580, 172, 5, 70, "Code",ExpressionUUID->"c1de777d-3728-48e2-b342-f9e972e1d858"]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
