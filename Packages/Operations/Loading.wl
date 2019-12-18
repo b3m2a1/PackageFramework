@@ -29,43 +29,64 @@ PackageEnsureLoadDependencies::usage="Predeclared...";
 PackageEnsureLoad::usage="Ensures everything is loaded";
 
 
-(* ::Subsubsection::Closed:: *)
+PackageBindMethods::usage="";
+
+
+(* ::Subsubsection:: *)
 (*Begin*)
 
 
-Begin["`Loading`"]
+Begin["`Private`"]
 
 
-(* ::Subsubsection::Closed:: *)
+PackageBindMethods[pkg_PackageFrameworkPackage]:=
+  With[{$Head=PackageHead[pkg]},
+    $Head["Directory"]:=PackageDirectory[pkg];
+    $Head["Name"]:=PackageName[pkg];
+    $Head["LoadingParameters"]:=PackageLoadSpecs[pkg];
+    (* Stuff for Loading *)
+    $Head["FileContexts"]:=PackageFileContexts[pkg];
+    $Head["DeclaredPackages"]:=PackageDeclaredPackages[pkg];
+    $Head["DeclaredPackages"]:=PackageDeclaredPackages[pkg];
+    $Head["LoadedPackages"]:=PackageLoadedPackages[pkg];
+    ];
+
+
+(* ::Subsubsection:: *)
 (*Constants*)
 
 
-$Name["FileContexts"]:=$PackageFileContexts;
 If[Not@AssociationQ@$PackageFileContexts,
   $PackageFileContexts=
     <||>
   ];
 
 
-$Name["DeclaredPackages"]:=$DeclaredPackages;
 If[Not@AssociationQ@$DeclaredPackages,
   $DeclaredPackages=
     <||>
   ];
 
 
-$Name["LoadedPackages"]:=$LoadedPackages;
 If[Not@ListQ@$LoadedPackages,
   $LoadedPackages={}
   ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageFileContext*)
 
 
+(* ::Text:: *)
+(*Gotta make this more flexible.*)
+(*The basic idea will be to allow the Package to declare its chosen "root" context, then we build off of that.*)
+(*Subdirectory names _might_ be allowed to map themselves to a different context in the future?*)
+
+
 PackageFileContextPath[f_String?DirectoryQ]:=
-  FileNameSplit[FileNameDrop[f,FileNameDepth[$PackageDirectory]+1]];
+  FileNameSplit[
+    FileNameDrop[f, FileNameDepth[$PackageDirectory]+1]
+    ];
 PackageFileContextPath[f_String?FileExistsQ]:=
   PackageFileContextPath[DirectoryName@f];
 
@@ -78,7 +99,7 @@ PackageFileContext[f_String?FileExistsQ]:=
   PackageFileContext[DirectoryName[f]];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageExecute*)
 
 
@@ -97,7 +118,7 @@ PackageExecute[expr_]:=
 PackageExecute~SetAttributes~HoldFirst
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackagePullDeclarations*)
 
 
@@ -159,7 +180,7 @@ PackagePullDeclarations[pkgFile_]:=
       ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageLoadPackage*)
 
 
@@ -201,7 +222,7 @@ PackageLoadPackage[heldSym_, context_, pkgFile_->syms_]:=
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageDeclarePackage*)
 
 
@@ -220,7 +241,7 @@ PackageDeclarePackage[pkgFile_->syms_]:=
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageLoadDeclare*)
 
 
@@ -234,7 +255,7 @@ PackageLoadDeclare[pkgFile_String]:=
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageAppLoad*)
 
 
@@ -296,7 +317,7 @@ PackageAppLoad[]:=
 PackageAppLoad~SetAttributes~Listable;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageAppGet*)
 
 
@@ -335,7 +356,7 @@ PackageAppGet[c_,f_]:=
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageAppNeeds*)
 
 
@@ -359,7 +380,7 @@ PackageAppNeeds[pkg_String]:=
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageScopeBlock*)
 
 
@@ -430,7 +451,7 @@ PackageScopeBlock[e_, scope_String:"Package"]/;Not@TrueQ[$AllowPackageRescoping]
 PackageScopeBlock~SetAttributes~HoldFirst;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageExposeContexts*)
 
 
@@ -440,7 +461,7 @@ PackageExposeContexts[]:=
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageEnsureLoad*)
 
 
@@ -452,7 +473,7 @@ PackageEnsureLoad[]:=
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageDecontext*)
 
 
@@ -477,7 +498,7 @@ PackageDecontext[
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageRecontext*)
 
 
@@ -496,7 +517,7 @@ PackageRecontext[
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*End*)
 
 

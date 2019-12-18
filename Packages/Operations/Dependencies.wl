@@ -20,14 +20,14 @@ PackageEnsureLoadDependencies::usage="Ensures all declared dependencies are load
 PackageExposeDependencies::usage="";
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Begin*)
 
 
 Begin["`Dependencies`"];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageExtendContextPath*)
 
 
@@ -44,7 +44,7 @@ PackageExtendContextPath[cp:{__String}]:=
     )
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageInstallPackageDependency*)
 
 
@@ -102,7 +102,7 @@ PackageInstallPackageDependency[dep_String, ops:OptionsPattern[]]:=
       ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageLoadPackageDependency*)
 
 
@@ -133,7 +133,7 @@ PackageLoadPackageDependency[dep_String, ops:OptionsPattern[]]:=
     ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageCheckPacletDependency*)
 
 
@@ -141,7 +141,7 @@ PackageCheckPacletDependency[dep_]:=
   Length@PacletManager`PacletFind[StringDelete[dep, "`"]]>0
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageInstallPacletDependency*)
 
 
@@ -215,7 +215,7 @@ PackageInstallPacletDependency[
   ]:=First@PackageInstallPacletDependency[{dep}, ops]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageLoadPacletDependency*)
 
 
@@ -248,7 +248,7 @@ PackageLoadPacletDependency[dep_String?(StringEndsQ["`"]), ops:OptionsPattern[]]
     ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageUpdatePacletDependency*)
 
 
@@ -313,7 +313,7 @@ PackageUpdatePacletDependency[
   First@PackageUpdatePacletDependency[{dep}, ops]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageLoadResourceDependency*)
 
 

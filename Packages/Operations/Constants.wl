@@ -11,15 +11,16 @@
 (*packages these days*)
 
 
-(* ::Subsection:: *)
+(* ::Subsubsection:: *)
 (*Constants*)
 
 
 $CurrentPackage::usage="The current package as configured by the loader";
 
 
-$PackageDirectory::usage="";
-$PackageName::usage="";
+$PackageDirectory::usage="Applies PackageRoot to $CurrentPackage";
+PackageName::usage="PackageName[pkg] Pulls the name out of pkg";
+$PackageName::usage="Applies PackageName to $CurrentPackage";
 $PackageListing::usage="The listing of packages";
 $PackagePackagesDirectory::usage="The directory to look for packages under";
 $PackageContexts::usage="The list of contexts exposed to all packages";
@@ -50,24 +51,18 @@ Begin["`Constants`"];
 (*Naming*)
 
 
-$Name["Directory"]:=
-  $PackageDirectory;
-$PackageDirectory=
-  DirectoryName@$InputFileName;
+$PackageDirectory:=PackageRoot[$CurrentPackage];
 
 
-$Name["Name"]:=
-  $PackageName;
-$PackageName=
-  "$Name";
+PackageName[pkg_]:=pkg["Name"];
+$PackageName:=PackageName[$CurrentPackage];
 
 
 (* ::Subsubsection:: *)
 (*Load Specs*)
 
 
-$Name["LoadingParameters"]:=$PackageLoadSpecs
-$PackageLoadSpecs=
+PackageLoadSpecs[pkg_]:=
   Merge[
     {
       With[
@@ -76,7 +71,7 @@ $PackageLoadSpecs=
             Append[
               FileNames[
                 "LoadInfo."~~"m"|"wl",
-                FileNameJoin@{$PackageDirectory, "Config"}
+                PackageRoot[pkg, "Config"]
                 ],
               None
               ][[1]]
@@ -99,7 +94,7 @@ $PackageLoadSpecs=
             Append[
               FileNames[
                 "LoadInfo."~~"m"|"wl",
-                FileNameJoin@{$PackageDirectory, "Private", "Config"}
+                PackageFilePath[pkg, "Private", "Config"]
                 ],
               None
               ][[1]]},
@@ -118,6 +113,7 @@ $PackageLoadSpecs=
       },
     Last
     ];
+$PackageLoadSpecs:=PackageLoadSpecs[$CurrentPackage];
 
 
 (* ::Subsubsection:: *)

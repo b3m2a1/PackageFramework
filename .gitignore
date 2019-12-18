@@ -1,0 +1,5 @@
+.DS_Store
+Packages/*.nb
+Packages/*/*.nb
+Packages/*/*/*.nb
+.scratch

@@ -43,7 +43,7 @@ PackagePostProcessFileNamePrep[fn_]:=
       }]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PrepSpecs*)
 
 
@@ -85,7 +85,7 @@ PackagePostProcessPrepSpecs[]:=
     );
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*ExposePackages*)
 
 
@@ -122,7 +122,7 @@ PackagePostProcessExposePackages[]/;TrueQ[$AllowPackageRecoloring]:=
 
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Rehide Packages*)
 
 
@@ -135,7 +135,7 @@ PackagePostProcessRehidePackages[]/;TrueQ[$AllowPackageRecoloring]:=
     ]&/@Keys@$DeclaredPackages
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Decontext*)
 
 
@@ -180,7 +180,7 @@ PackagePostProcessDecontextPackages[]/;TrueQ[$AllowPackageRecoloring]:=
 
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*ContextPathReassign*)
 
 
@@ -204,7 +204,7 @@ PackagePostProcessContextPathReassign[]:=
     ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*AttachMainAutocomplete*)
 
 
@@ -228,7 +228,7 @@ PackageAttachMainAutocomplete[]:=
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PreventShadowing*)
 
 
