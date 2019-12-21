@@ -143,7 +143,7 @@ EndPackage[]
 Begin["`Private`"];
 
 
-$PackageFrameworkVersion::docs="
+$PackageFrameworkVersion::doc="
 Dunno if I'll ever use this, but this should either be standalone-version or paclet-version \
 where version is semantically versioned.
 
@@ -174,8 +174,19 @@ ResolvePackageFrameworkPackage[loc_]:=
   Lookup[$PackageFrameworkPackages, loc, None]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageFrameworkConfig*)
+
+
+$PacletInfoFileNames={
+  "PacletInfo.wl", "PacletInfo.m"
+  };
+
+
+$LegacyInfoFileNames={
+  "LoadInfo.m", "LoadInfo.wl",
+  "BundleInfo.m", "BundleInfo.wl"
+  };
 
 
 PackageFrameworkConfig::doc="
@@ -198,15 +209,17 @@ PackageFrameworkConfig[ops_, paclet_, rootDirectory_]:=
        None,
          (* proceed to try to find the missing PacletInfo.m or PacletInfo.wl file *)
          pacletData = 
-           Which[
-             FileExistsQ[FileNameJoin@{rootDirectory, "PacletInfo.m"}],
-               Association@@PacletManager`CreatePaclet@
-                 FileNameJoin@{rootDirectory, "PacletInfo.m"},
-             FileExistsQ[FileNameJoin@{rootDirectory, "PacletInfo.wl"}],
-               Association@@PacletManager`CreatePaclet@
-                 FileNameJoin@{rootDirectory, "PacletInfo.wl"},
-             True,
-               <||>
+           Catch[
+             Do[
+               If[FileExistsQ[FileNameJoin@{rootDirectory, p}],
+                 Throw[
+                   Association@@PacletManager`CreatePaclet@
+                     FileNameJoin@{rootDirectory, p}
+                   ]
+                 ],
+               {p, $PacletInfoFileNames}
+               ];
+             <||>
              ],
        _PacletManager`Paclet|_System`PacletObject,
          pacletData = Association@@pacletData
@@ -220,7 +233,8 @@ PackageFrameworkConfig[ops_, paclet_, rootDirectory_]:=
           1
           ];
     legacyConfigFiles=
-      FileNames["LoadInfo."~~("m"|"wl"), 
+      FileNames[
+        Alternatives@@$LegacyInfoFileNames, 
         {
           FileNameJoin@{rootDirectory, "Config"},
           FileNameJoin@{rootDirectory, "Private"},
@@ -254,7 +268,7 @@ PackageFrameworkConfig[ops_, paclet_, rootDirectory_]:=
              }
            ]
          |>,
-       Lookup[pacletData, "PackageFramework", <||>]
+       Lookup[extensionData, "PackageFramework", <||>]
        ]//Merge[
        Flatten@{
          ops,
@@ -285,16 +299,14 @@ Supports the following keys:
   ResourceRoot: where to find resources (defaults to top-level Resource directory)
   ExtraContexts: a set of extra contexts to expose once loading is done
   ContextMap: a mapping from standard context paths to custom ones
-  LoadInfo: 
-    Mode: the loading mechanism (Dependency or Primary) for the package
-    FEHidden: the list of packages that should be hidden from the FE
-    PackageScope: the list of packages that should be package scoped and not exposable
-    PreLoad: the list of packages that should be loaded when the package is loaded
-    Dependencies: the list of dependencies (with suboptions) for the package
-    PackageContexts: the list of contexts that should be available when loading
-  BundleInfo:
-    RemovePaths: the set of paths to be removed from the bundled package
-    RemovePatterns: the set of path patterns to be remove from the bundled package
+  Mode: the loading mechanism (Dependency or Primary) for the package
+  DecoloredPackages: the list of packages that should be hidden from the FE
+  PackageScope: the list of packages that should be package scoped and not exposable
+  PreloadPackages: the list of packages that should be loaded when the package is loaded
+  Dependencies: the list of dependencies (with suboptions) for the package
+  PackageContexts: the list of contexts that should be available when loading
+  RemovePaths: the set of paths to be removed from the bundled package
+  RemovePatterns: the set of path patterns to be remove from the bundled package
 ";
 Options[PackageFrameworkPackage]=
   {
@@ -306,22 +318,18 @@ Options[PackageFrameworkPackage]=
     "DependenciesRoot"->"Dependencies",
     "ExtraContexts"->{},
     "ContextMap"->{},
-    "LoadInfo"->{
-      "Mode"->"Primary",
-      "FEHidden"->{},
-      "PackageScope"->{},
-      "PreLoad"->{},
-      "Dependencies"->{}
-      },
-    "BundleInfo"->{
-      "RemovePaths" -> {"Private", "project", "GitHub", ".git"}, 
-      "RemovePatterns" -> {
-         "Packages/*.nb", 
-         "Packages/*/*.nb", 
-         "Packages/*/*/*.nb", 
-         ".DS_Store"
-         }
-      }
+    "LoadingMode"->Automatic,
+    "DecoloredPackages"->{},
+    "PackageScope"->{},
+    "PreloadPackages"->{},
+    "Dependencies"->{},
+    "RemovePaths" -> {"Private", "project", "GitHub", ".git"}, 
+    "RemovePatterns" -> {
+       "Packages/*.nb", 
+       "Packages/*/*.nb", 
+       "Packages/*/*/*.nb", 
+       ".DS_Store"
+       }
     };
 PackageFrameworkPackage[
   pac:_PacletManager`Paclet|_System`PacletObject,
@@ -672,7 +680,7 @@ PackageFrameworkPackageMutate[___]:=Language`MutationFallthrough
 
 
 SetAttributes[CreatePackageSymbolInterface, HoldFirst];
-CreatePackageSymbolInterface::docs="
+CreatePackageSymbolInterface::doc="
 Binds the PropertyValue/SetProperty interface to the specified symbol and uses the specified string \
 as the key.
 ";
@@ -703,7 +711,7 @@ CreatePackageSymbolInterface[
   );
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*BindPackageMethod*)
 
 
@@ -721,7 +729,7 @@ BindPackageMethod[name_, method_]:=
 (*Load Package*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*LoadPackage*)
 
 
@@ -734,7 +742,7 @@ BindPackageMethod[name_, method_]:=
 
 
 ClearAll[LoadPackage]
-LoadPackage::docs="
+LoadPackage::doc="
 
 ";
 LoadPackage::npkg="`` is not a valid package";
@@ -850,7 +858,7 @@ LoadPackage[a_, ___]/;(Message[LoadPackage::npkg, a]):=Null;
 (*Context / File Management*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageName*)
 
 
@@ -862,7 +870,7 @@ PackageName[pkg_PackageFrameworkPackage]:=
   pkg["Name"];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageRootContext*)
 
 
@@ -871,7 +879,7 @@ PackageRootContext[pkg_PackageFrameworkPackage]:=
   Replace[PackageFrameworkPackageOptionValue[pkg, "Context"], {p_, ___}:>p]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageContext*)
 
 
@@ -885,7 +893,7 @@ PackageContext[pkg_PackageFrameworkPackage, Optional[Automatic, Automatic]]:=
   PackageContext[pkg, PropertyValue[pkg, "ParentContext"]]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageContexts*)
 
 
@@ -902,7 +910,7 @@ PackageContexts[pkg_]:=
     ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageAddContexts*)
 
 
@@ -983,7 +991,7 @@ PackageInitialContextPath[pkg_, includeOrig:True|False:True]:=
     ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageRoot*)
 
 
@@ -994,12 +1002,12 @@ PackageRoot[PackageFrameworkPackage[a_]?PackageFrameworkPackageQ, Optional[None,
   a["Location"];
 PackageRoot[PackageFrameworkPackage[a_]?PackageFrameworkPackageQ, k_String]:=
   FileNameJoin@{
-    a["Location"], 
+    a["Location"],
     Lookup[a, k<>"Root", k]
     }
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageFileNames*)
 
 
@@ -1015,7 +1023,7 @@ PackageFileNames[
   FileNames[pattern, PackageRoot[pkg, root]]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageFilePath*)
 
 
@@ -1050,7 +1058,7 @@ PackageFileContexts[pkg_]:=
     ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageLoadedPackages*)
 
 
@@ -1067,7 +1075,7 @@ PackageLoadedPackages[pkg_]:=
     ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageAddLoadedPackages*)
 
 
@@ -1171,6 +1179,9 @@ PackageExtendContextPath[pkg_, cp:{__String}]:=
 
 
 (*CreatePackageSymbolInterface[$PackageSymbols, "Symbols", PackageSymbols[#]&];*)
+
+
+BindPackageMethod["Symbols", PackageSymbols]
 
 
 PackageSymbols[pkg_]:=
@@ -1630,7 +1641,7 @@ PackageEnsureLoad[pkg_]:=
 (*PackageCompleteLoadProcess*)
 
 
-PackageCompleteLoadProcess::docs="
+PackageCompleteLoadProcess::doc="
 Exists in this version of the PackageFramework simply to indicate that the full version will \
 do more with this. At this point doesn't really do much.
 ";
@@ -1642,12 +1653,23 @@ PackageCompleteLoadProcess[pkg_]:=
 (*Dependencies*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
+(*PackageLoadingMode*)
+
+
+PackageLoadingMode[pkg_]:=
+  Replace[pkg["LoadingMode"],
+    Automatic:>
+      If[TrueQ@$PackageFrameworkInDependencyLoad, "Dependency", "Primary"]
+    ]
+
+
+(* ::Subsubsection:: *)
 (*PackageDependencies*)
 
 
 PackageDependencies[pkg_PackageFrameworkPackage]:=
-  pkg["LoadInfo", "Dependencies"]
+  pkg["Dependencies"]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -1855,7 +1877,7 @@ PackageLoadPacletDependency[pkg_, dep_String?(StringEndsQ["`"]), ops:OptionsPatt
     ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageEnsureLoadDependency*)
 
 
@@ -1920,29 +1942,31 @@ PackageEnsureLoadDependency[pkg_PackageFrameworkPackage, dep_, ops:OptionsPatter
          ];
        bund=StringQ@foundFile
        ];
-     Quiet[(* this is a temporary hack until WRI fixes a $ContextPath bug *)
-       If[!bund,
-         PackageLoadPacletDependency[
-           dep,
-           Sequence@@
-             FilterRules[
-               {
-                 ops,
-                 "Update"->True,
-                 "Loading"->Get
-                 },
-               Options@PackageLoadPacletDependency
-               ]
+     Block[{$PackageFrameworkInDependencyLoad=True},
+       Quiet[(* this is a temporary hack until WRI fixes a $ContextPath bug *)
+         If[!bund,
+           PackageLoadPacletDependency[
+             dep,
+             Sequence@@
+               FilterRules[
+                 {
+                   ops,
+                   "Update"->True,
+                   "Loading"->Get
+                   },
+                 Options@PackageLoadPacletDependency
+                 ]
+             ],
+           Lookup[Flatten@{ops}, "Loading", Get]@foundFile
+           (* I have my reasons to do this rather than Needs... but it could change... *)
            ],
-         Lookup[Flatten@{ops}, "Loading", Get]@foundFile
-         (* I have my reasons to do this rather than Needs... but it could change... *)
-         ],
-      General::shdw
+        General::shdw
+        ]
       ];
     ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageEnsureLoadDependencies*)
 
 
@@ -1974,15 +1998,15 @@ PackageEnsureLoadDependencies[pkg_PackageFrameworkPackage]:=
    ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageDependencyContexts*)
 
 
 PackageDependencyContexts[pkg_]:=
-  Replace[pkg["LoadInfo", "DependencyContexts"], _Missing->{}]
+  PackageDependencies[pkg][[All, 1]];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*PackageExposeDependencies*)
 
 
@@ -2031,7 +2055,7 @@ PackageExposeDependencies[pkg_]:=
 (*Package Helpers*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageConfigurePackageHelpers*)
 
 

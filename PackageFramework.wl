@@ -1,35 +1,21 @@
 (* ::Package:: *)
 
-(* ::Subsection::Closed:: *)
-(*Temp Loading Flag Code*)
+(* ::Section:: *)
+(*Package Loader*)
 
 
-Temp`PackageScope`PackageFrameworkLoading`Private`$PackageLoadData=
-  If[#===None, <||>, Replace[Quiet@Get@#, Except[_?OptionQ]-><||>]]&@
-    Append[
-      FileNames[
-        "LoadInfo."~~"m"|"wl",
-        FileNameJoin@{DirectoryName@$InputFileName, "Config"}
-        ],
-      None
-      ][[1]];
-Temp`PackageScope`PackageFrameworkLoading`Private`$PackageLoadMode=
-  Lookup[Temp`PackageScope`PackageFrameworkLoading`Private`$PackageLoadData, "Mode", "Primary"];
-Temp`PackageScope`PackageFrameworkLoading`Private`$DependencyLoad=
-  TrueQ[Temp`PackageScope`PackageFrameworkLoading`Private`$PackageLoadMode==="Dependency"];
+(* ::Text:: *)
+(*Bootstrapping loading for the PackageFramework package*)
 
 
-(* ::Subsection:: *)
-(*Main*)
-
-
-If[Temp`PackageScope`PackageFrameworkLoading`Private`$DependencyLoad,
-  If[!TrueQ[Evaluate[Symbol["`PackageFramework`PackageScope`Private`$LoadCompleted"]]],
-    Get@FileNameJoin@{DirectoryName@$InputFileName, "PackageFrameworkLoader.wl"}
-    ],
-  If[!TrueQ[Evaluate[Symbol["PackageFramework`PackageScope`Private`$LoadCompleted"]]],
-    <<PackageFramework`PackageFrameworkLoader`,
-   BeginPackage["PackageFramework`"];
-   EndPackage[];
-   ]
+If[(* version of Needs that'll bootstrap *)
+  !StringQ[PackageFramework`Package`$PackageFrameworkVersion]||
+    StringStartsQ[
+      PackageFramework`Package`$PackageFrameworkVersion, 
+      "standalone"
+      ],
+  Block[{$Path=Prepend[$Path, DirectoryName@$InputFileName]},
+    <<PackageFrameworkLoader`
+    ];
+  PackageFramework`LoadPackage[]
   ]
