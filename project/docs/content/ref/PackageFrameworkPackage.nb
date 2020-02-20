@@ -1,0 +1,259 @@
+Notebook[
+ {Cell[BoxData[RowBox[{RowBox[{"(*", " ", RowBox[{"Markdown", " ", 
+          "metadata"}], " ", "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"<|", "\[IndentingNewLine]", 
+        RowBox[{RowBox[{"\"Date\"", "\[RuleDelayed]", "Now"}], ",", 
+          "\[IndentingNewLine]", RowBox[{"\"ExportOptions\"", "\[Rule]", 
+            RowBox[{"{", "\[IndentingNewLine]", RowBox[{"(*", RowBox[
+                 {"\"UseImageInput\"", "\[Rule]", "True"}], "*)"}], 
+              "\[IndentingNewLine]", "}"}]}]}], "\[IndentingNewLine]", 
+        "|>"}]}]], "Metadata", CellID -> 1532829380], 
+  Cell["PackageFramework Symbol", "TitleBar", CellID -> 1049560248], 
+  Cell[CellGroupData[{Cell["PackageFrameworkPackage", "Section", 
+      "SymbolName", CellID -> 528411678], Cell["", "UsageSection", 
+      CellID -> 1170191801], Cell[BoxData[RowBox[{"PackageFrameworkPackage", 
+         "[", "assoc", "]"}]], "Code", "UsageInput", CellID -> 758360181], 
+     Cell[TextData[
+       {"represents a package in the layout that can be loaded by ", 
+        Cell[BoxData["LoadPackage"], "InlineInput"]}], "Text", "UsageText", 
+      CellID -> 444117122], Cell["", "UsageSectionFooter", 
+      CellID -> 1770796129], Cell[CellGroupData[
+       {Cell["Details", "Subsection", "DetailsSection", 
+         CellID -> 1942159977], Cell[CellGroupData[
+          {Cell[TextData[{Cell[BoxData["PackageFrameworkPackage"], 
+               "InlineInput"], " objects are ", StyleBox["unique", 
+               FontSlant -> "Italic"], 
+              ". This means that a given object can have a certain set of ", 
+              Cell[BoxData["PropertyValue"], "InlineInput"], "s bound to it \
+and but something that appears structurally equivalent may have a different \
+set."}], "Item", "DetailsItem", CellID -> 426311985], 
+           Cell[TextData[{Cell[BoxData["PackageFrameworkPackage"], 
+               "InlineInput"], " resolves to a single version of the object \
+for a given location in the layout"}], "Item", "DetailsItem", 
+            CellID -> 351688089], Cell[TextData[{Cell[BoxData[
+                "PackageFrameworkPackage"], "InlineInput"], 
+              " objects support the property interface much like ", 
+              Cell[BoxData["Graph"], "InlineInput"], " does"}], "Item", 
+            "DetailsItem", CellID -> 318240774], 
+           Cell[TextData[{Cell[BoxData["PackageFrameworkPackage"], 
+               "InlineInput", FormatType -> "StandardForm"], 
+              " supports the following ", Cell[BoxData["Options"], 
+               "InlineInput", FormatType -> "StandardForm"]}], "Item", 
+            "DetailsItem", CellID -> 1784987485], 
+           Cell[CellGroupData[{Cell[TextData[{Cell[BoxData["\"Name\""], 
+                  "InlineInput", FormatType -> "StandardForm"], 
+                 " the name of the package (usually taken from the ", 
+                 Cell[BoxData[RowBox[{"PacletInfo", ".", "wl"}]], 
+                  "InlineInput", FormatType -> "StandardForm"], " file)"}], 
+               "Subitem", "DetailsItem", CellID -> 1931610015], 
+              Cell[TextData[{Cell[BoxData["\"Location\""], "InlineInput", 
+                  FormatType -> "StandardForm"], 
+                 " the loaction of the package  (usually inferred from ", 
+                 Cell[BoxData["$InputFileName"], "InlineInput", FormatType -> 
+                   "StandardForm"], ")"}], "Subitem", "DetailsItem", 
+               CellID -> 1393932499], Cell[TextData[{Cell[BoxData[
+                   "\"Context\""], "InlineInput", FormatType -> 
+                   "StandardForm"], 
+                 " the context of the package (usually taken from the ", 
+                 Cell[BoxData[RowBox[{"PacletInfo", ".", "wl"}]], 
+                  "InlineInput", FormatType -> "StandardForm"], " file)"}], 
+               "Subitem", "DetailsItem", CellID -> 447579560], 
+              Cell[TextData[{Cell[BoxData["\"PackageRoot\""], "InlineInput", 
+                  FormatType -> "StandardForm"], 
+                 " the path to use when looking for packages (defaults to ", 
+                 Cell[BoxData["\"Packages\""], "InlineInput", FormatType -> 
+                   "StandardForm"], ")"}], "Subitem", "DetailsItem", 
+               CellID -> 42011458], Cell[TextData[{Cell[BoxData[
+                   "\"ResourceRoot\""], "InlineInput", FormatType -> 
+                   "StandardForm"], " the path to use when looking for \
+resources (defaults to ", Cell[BoxData["\"Resources\""], "InlineInput", 
+                  FormatType -> "StandardForm"], ")"}], "Subitem", 
+               "DetailsItem", CellID -> 943242993], Cell[TextData[
+                {Cell[BoxData["\"DependenciesRoot\""], "InlineInput", 
+                  FormatType -> "StandardForm"], " the path to use when \
+looking for dependencies (defaults to ", Cell[BoxData["\"Dependencies\""], 
+                  "InlineInput", FormatType -> "StandardForm"], ")"}], 
+               "Subitem", "DetailsItem", CellID -> 163102320], 
+              Cell[TextData[{Cell[BoxData["\"ExtraContexts\""], 
+                  "InlineInput", FormatType -> "StandardForm"], " a set of \
+extra contexts to expose when done loading the package"}], "Subitem", 
+               "DetailsItem", CellID -> 281329345], Cell[TextData[
+                {Cell[BoxData["\"ContextMap\""], "InlineInput", FormatType -> 
+                   "StandardForm"], " a way to map default contexts to a new \
+set of contexts to customize how loading happens"}], "Subitem", 
+               "DetailsItem", CellID -> 982447052], Cell[TextData[
+                {Cell[BoxData["\"LoadingMode\""], "InlineInput", 
+                  FormatType -> "StandardForm"], " whether the package should \
+load as a dependency or not (usually inferred)"}], "Subitem", "DetailsItem", 
+               CellID -> 1049506383], Cell[TextData[{Cell[BoxData[
+                   "\"AutoloadIgnored\""], "InlineInput", FormatType -> 
+                   "StandardForm"], " a set of symbol names that shouldn't \
+get autoload rules set on them"}], "Subitem", "DetailsItem", CellID -> 
+                410575213], Cell[TextData[{Cell[BoxData[
+                   "\"PreloadPackages\""], "InlineInput", FormatType -> 
+                   "StandardForm"], " a set of packages to load immediately \
+(after the entire thing is done loading)"}], "Subitem", "DetailsItem", 
+               CellID -> 507405385], Cell[TextData[{Cell[BoxData[
+                   "\"Dependencies\""], "InlineInput", FormatType -> 
+                   "StandardForm"], 
+                 " the listing of dependencies for the package to load"}], 
+               "Subitem", "DetailsItem", CellID -> 815044167]}, Open]], 
+           Cell["Other options might show up in the future, but hopefully \
+not", "Item", "DetailsItem", CellID -> 330525593]}, Open]]}, Closed]], 
+     Cell[CellGroupData[{Cell["Examples", "Subsection", "ExamplesSection", 
+         CellID -> 2009652494], Cell[BoxData[RowBox[{"Needs", "[", 
+            "\"PackageFramework`\"", "]"}]], "Input", 
+         CellLabel -> "In[17]:=", CellID -> 1678531672], 
+        Cell[CellGroupData[{Cell["Basic Examples", "Subsubsection", 
+            "ExamplesSection", CellID -> 606666642], 
+           Cell[TextData[{"When a package is loaded by ", Cell[BoxData[
+                "LoadPackage"], "InlineInput"], " the ", Cell[BoxData[
+                "PackageFrameworkPackage"], "InlineInput"], " is returned"}], 
+            "Text", "ExamplesText", CellID -> 2141379785], 
+           Cell[CellGroupData[{Cell[BoxData[RowBox[{"pkg", "=", RowBox[
+                   {"LoadPackage", "[", "\"PackageTools`\"", "]"}]}]], 
+               "Input", "ExamplesInput", CellLabel -> "In[18]:=", CellID -> 
+                491606422], Cell[BoxData[InterpretationBox[RowBox[
+                  {TagBox["PackageFrameworkPackage", "SummaryHead"], "[", 
+                   DynamicModuleBox[{Typeset`open$$ = False, 
+                     Typeset`embedState$$ = "Ready"}, TemplateBox[
+                     {PaneSelectorBox[{False -> GridBox[{{PaneBox[ButtonBox[
+                          DynamicBox[FEPrivate`FrontEndResource["FEBitmaps", 
+                          "SquarePlusIconMedium"]], ButtonFunction :> 
+                          (Typeset`open$$ = True), Appearance -> None, 
+                          Evaluator -> Automatic, Method -> "Preemptive"], 
+                          Alignment -> {Center, Center}, ImageSize -> Dynamic[
+                          {Automatic, (3.5*CurrentValue["FontCapHeight"])/
+                          AbsoluteCurrentValue[Magnification]}]], GridBox[
+                          {{RowBox[{TagBox["\"Name: \"", 
+                          "SummaryItemAnnotation"], "\[InvisibleSpace]", 
+                          TagBox["\"PackageTools\"", "SummaryItem"]}]}}, 
+                          GridBoxAlignment -> {"Columns" -> {{Left}}, 
+                          "Rows" -> {{Automatic}}}, AutoDelete -> False, 
+                          GridBoxItemSize -> {"Columns" -> {{Automatic}}, 
+                          "Rows" -> {{Automatic}}}, GridBoxSpacings -> 
+                          {"Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                          BaseStyle -> {ShowStringCharacters -> False, 
+                          NumberMarks -> False, PrintPrecision -> 3, 
+                          ShowSyntaxStyles -> False}]}}, GridBoxAlignment -> 
+                          {"Rows" -> {{Top}}}, AutoDelete -> False, 
+                          GridBoxItemSize -> {"Columns" -> {{Automatic}}, 
+                          "Rows" -> {{Automatic}}}, BaselinePosition -> {1, 
+                          1}], True -> GridBox[{{PaneBox[ButtonBox[DynamicBox[
+                          FEPrivate`FrontEndResource["FEBitmaps", 
+                          "SquareMinusIconMedium"]], ButtonFunction :> 
+                          (Typeset`open$$ = False), Appearance -> None, 
+                          Evaluator -> Automatic, Method -> "Preemptive"], 
+                          Alignment -> {Center, Center}, ImageSize -> Dynamic[
+                          {Automatic, (3.5*CurrentValue["FontCapHeight"])/
+                          AbsoluteCurrentValue[Magnification]}]], GridBox[
+                          {{RowBox[{TagBox["\"Name: \"", 
+                          "SummaryItemAnnotation"], "\[InvisibleSpace]", 
+                          TagBox["\"PackageTools\"", "SummaryItem"]}]}, 
+                          {RowBox[{TagBox["\"Context: \"", 
+                          "SummaryItemAnnotation"], "\[InvisibleSpace]", 
+                          TagBox[RowBox[{"{", "\"PackageTools`\"", "}"}], 
+                          "SummaryItem"]}]}, {RowBox[{TagBox[
+                          "\"Location: \"", "SummaryItemAnnotation"], 
+                          "\[InvisibleSpace]", TagBox["\"/Users/Mark/Document\
+s/Wolfram Mathematica/Applications/PackageTools\"", "SummaryItem"]}]}}, 
+                          GridBoxAlignment -> {"Columns" -> {{Left}}, 
+                          "Rows" -> {{Automatic}}}, AutoDelete -> False, 
+                          GridBoxItemSize -> {"Columns" -> {{Automatic}}, 
+                          "Rows" -> {{Automatic}}}, GridBoxSpacings -> 
+                          {"Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                          BaseStyle -> {ShowStringCharacters -> False, 
+                          NumberMarks -> False, PrintPrecision -> 3, 
+                          ShowSyntaxStyles -> False}]}}, GridBoxAlignment -> 
+                          {"Rows" -> {{Top}}}, AutoDelete -> False, 
+                          GridBoxItemSize -> {"Columns" -> {{Automatic}}, 
+                          "Rows" -> {{Automatic}}}, BaselinePosition -> {1, 
+                          1}]}, Dynamic[Typeset`open$$], ImageSize -> 
+                        Automatic]}, "SummaryPanel"], DynamicModuleValues :> 
+                     {}], "]"}], PackageFrameworkPackage[Association[
+                   "Name" -> "PackageTools", "Location" -> "/Users/Mark/Docum\
+ents/Wolfram Mathematica/Applications/PackageTools", "Context" -> 
+                    {"PackageTools`"}, "PackageRoot" -> "Packages", 
+                   "ResourceRoot" -> "Resources", "DependenciesRoot" -> 
+                    "Dependencies", "ExtraContexts" -> {}, "ContextMap" -> 
+                    {}, "LoadingMode" -> Automatic, "AutoloadIgnored" -> {}, 
+                   "DecoloredPackages" -> {}, "PackageScope" -> {}, 
+                   "PreloadPackages" -> {}, "Dependencies" -> {}, 
+                   "RemovePaths" -> {"Private", "project", "GitHub", ".git"}, 
+                   "RemovePatterns" -> {"Packages/*.nb", "Packages/*/*.nb", 
+                     "Packages/*/*/*.nb", ".DS_Store"}]], Editable -> False, 
+                 SelectWithContents -> True, Selectable -> False]], "Output", 
+               CellLabel -> "Out[18]=", CellID -> 658238829]}, Open]], 
+           Cell["The package can tell you about what it contains", "Text", 
+            CellID -> 393613983], Cell[CellGroupData[
+             {Cell[BoxData[RowBox[{"pkg", "@", RowBox[{"\"Symbols\"", "[", 
+                    "]"}]}]], "Input", CellLabel -> "In[20]:=", CellID -> 
+                1458212170], Cell[BoxData[RowBox[{"{", RowBox[
+                   {RowBox[{"HoldPattern", "[", "Exception", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", "$ExceptionTag", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", "ExceptionBlock", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", "ThrowException", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", "CatchException", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", "$CatchExceptionCallback", 
+                      "]"}], ",", RowBox[{"HoldPattern", "[", 
+                      "$ExceptionErrorMessage", "]"}], ",", RowBox[
+                     {"HoldPattern", "[", "ThrowMessage", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", "CatchMessage", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", "CatchMessageCallback", 
+                      "]"}], ",", RowBox[{"HoldPattern", "[", 
+                      "CreateFailureException", "]"}], ",", RowBox[
+                     {"HoldPattern", "[", "RaiseException", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", 
+                      "BeginDisabledSymbolColoring", "]"}], ",", RowBox[
+                     {"HoldPattern", "[", "EndDisabledSymbolColoring", "]"}], 
+                    ",", RowBox[{"HoldPattern", "[", 
+                      "WithDisabledSymbolColoring", "]"}], ",", RowBox[
+                     {"HoldPattern", "[", "WithEnabledSymbolColoring", "]"}], 
+                    ",", RowBox[{"HoldPattern", "[", 
+                      "RemoveFrontEndSymbolColoring", "]"}], ",", RowBox[
+                     {"HoldPattern", "[", "AddFrontEndSymbolColoring", "]"}], 
+                    ",", RowBox[{"HoldPattern", "[", "AutoFunctionInfo", 
+                      "]"}], ",", RowBox[{"HoldPattern", "[", 
+                      "AddFunctionUsageTemplate", "]"}], ",", RowBox[
+                     {"HoldPattern", "[", "AddFunctionAutocompletions", 
+                      "]"}], ",", RowBox[{"HoldPattern", "[", 
+                      "AddFunctionSyntaxInformation", "]"}], ",", RowBox[
+                     {"HoldPattern", "[", "AddFunctionArgCount", "]"}], ",", 
+                    RowBox[{"HoldPattern", "[", "SetAutocompletions", "]"}], 
+                    ",", RowBox[{"HoldPattern", "[", "SetArgCount", "]"}], 
+                    ",", RowBox[{"HoldPattern", "[", "GenerateFunctionInfo", 
+                      "]"}]}], "}"}]], "Output", CellLabel -> "Out[20]=", 
+               CellID -> 1703021590]}, Open]]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["See Also", "Subsection", "SeeAlso", 
+         CellID -> 654370226], Cell[TextData[{ButtonBox["LoadPackage", 
+            BaseStyle -> {"Link", "Input"}, ButtonData -> 
+             "paclet:PackageFramework/ref/LoadPackage"], " | ", 
+           ButtonBox["PackageFrameworkPackage", BaseStyle -> 
+             {"Link", "Input"}, ButtonData -> 
+             "paclet:PackageFramework/ref/PackageFrameworkPackage"]}], 
+         "Text", CellID -> 736632095]}, Open]], 
+     Cell[CellGroupData[{Cell["Related Tutorials", "Subsection", 
+         "RelatedLinks", CellID -> 1182827181], 
+        Cell[TextData[ButtonBox["Using The Package Framework", 
+           BaseStyle -> "Link", ButtonData -> 
+            "paclet:PackageFramework/tutorial/UsingThePackageFramework"]], 
+         "Item", CellID -> 1034394178]}, Open]], Cell["Made with SimpleDocs", 
+      "Text", "Footer", CellID -> 430673302]}, Open]]}, 
+ ScreenStyleEnvironment -> "Editing", TaggingRules -> 
+  {"Metadata" -> {"built" -> "{2019, 12, 22, 1, 29, 3.275417}", 
+     "history" -> {"12.", "", ""}, "context" -> "PackageFramework`", 
+     "keywords" -> {}, "specialkeywords" -> {}, "tutorialcollectionlinks" -> 
+      {}, "index" -> True, "label" -> "PackageFrameworkPackage", 
+     "language" -> "en", "paclet" -> "Mathematica", "status" -> "None", 
+     "summary" -> "", "synonyms" -> {}, "tabletags" -> {}, 
+     "title" -> "PackageFrameworkPackage", "titlemodifier" -> "", 
+     "windowtitle" -> "PackageFrameworkPackage", "type" -> "Symbol", 
+     "uri" -> "PackageFramework/ref/PackageFrameworkPackage"}, 
+   "ColorType" -> "SymbolColor", "SimpleDocs" -> 
+    {"Project" -> {"Name" -> "PackageFramework", "Directory" -> 
+        FrontEnd`FileName[{$UserDocumentsDirectory, "Wolfram Mathematica", 
+          "Applications"}, "PackageFramework"], "Config" -> 
+        FrontEnd`FileName[{"project", "docs"}, "config.wl"]}}}, 
+ FrontEndVersion -> "12.0 for Mac OS X x86 (64-bit) (April 8, 2019)", 
+ StyleDefinitions -> FrontEnd`FileName[{"SimpleDocs"}, "SimpleDocs.nb", 
+   CharacterEncoding -> "UTF-8"]]

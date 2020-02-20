@@ -1,0 +1,124 @@
+Notebook[
+ {Cell[BoxData[RowBox[{RowBox[{"(*", " ", RowBox[{"Markdown", " ", 
+          "metadata"}], " ", "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"<|", "\[IndentingNewLine]", 
+        RowBox[{RowBox[{"\"Date\"", "\[RuleDelayed]", "Now"}], ",", 
+          "\[IndentingNewLine]", RowBox[{"\"ExportOptions\"", "\[Rule]", 
+            RowBox[{"{", "\[IndentingNewLine]", RowBox[{"(*", RowBox[
+                 {"\"UseImageInput\"", "\[Rule]", "True"}], "*)"}], 
+              "\[IndentingNewLine]", "}"}]}]}], "\[IndentingNewLine]", 
+        "|>"}]}]], "Metadata", CellID -> 236646128], 
+  Cell["Tutorial", "TitleBar", CellID -> 171759052], 
+  Cell[CellGroupData[{Cell["Using The Package Framework", "Section", 
+      "TutorialName", CellID -> 536365396], 
+     Cell[TextData[{"The ", Cell[BoxData["PackageFramework"], "InlineInput"], 
+        " paclet was designed to be possible to use in a light-weight manner. \
+It provides two modes of operation:"}], "Text", CellID -> 1704344113], 
+     Cell[CellGroupData[{Cell["a single file interface", "ItemNumbered", 
+         CellID -> 1838493555], Cell["a full paclet interface", 
+         "ItemNumbered", CellID -> 1715850506]}, Open]], 
+     Cell["Both of these will share an expected package layout and operate \
+similarly, the only difference is in how fully featured they are/will become \
+and what is required to use each. ", "Text", CellID -> 376095326], 
+     Cell["For now, we'll discuss this in the context of the single file \
+interface, but nothing substantive will change if we move to the full paclet \
+interface.", "Text", CellID -> 1424110237], 
+     Cell[CellGroupData[{Cell["Expected Package Layout", "Subsection", 
+         CellID -> 1587782231], Cell[BoxData[
+          {RowBox[{"MyPackage", "\\\n", "\t", RowBox[{"+", " ", RowBox[
+                {"PacletInfo", ".", "wl"}]}]}], "\n", 
+           RowBox[{"\t", RowBox[{"+", " ", RowBox[{"PackageFramework", ".", 
+                 "wl"}]}]}], "\n", RowBox[{"\t", RowBox[{"+", " ", RowBox[
+                {"MyPackage", ".", "wl"}]}]}], "\n", 
+           RowBox[{"\t", RowBox[{"Packages", "\\\n", "\t\t", RowBox[
+                {"+", " ", RowBox[{"Package1", ".", "wl"}]}]}]}], "\n", 
+           RowBox[{"\t\t", RowBox[{"+", " ", RowBox[{"Package2", ".", 
+                 "wl"}]}]}], "\n", RowBox[{"\t\t", RowBox[{"Subcontext", 
+               "\\\n", "\t\t  ", RowBox[{"+", " ", RowBox[{"Subpackage1", 
+                   ".", "wl"}]}]}]}], "\n", RowBox[{"\t\t  ", 
+             RowBox[{"+", " ", RowBox[{"Subpackage2", ".", "wl"}]}]}], "\n", 
+           RowBox[{"  ", RowBox[
+              {"Dependencies\\\n    DependencyPackage1\\\n", "    ", 
+               "..."}]}], "\n", RowBox[{"    ", RowBox[
+              {"DependencyPackage2\\\n", "     ", "..."}]}]}], "Code", 
+         CellID -> 1005179460], Cell["In this layout we have three primary \
+differences from a standard Mathematica package:", "Text", 
+         CellID -> 1396059032], Cell[CellGroupData[
+          {Cell[TextData[{"there is a ", Cell[BoxData[RowBox[
+                 {"PackageFramework", ".", "wl"}]], "InlineInput"], " file in \
+the layout (this would not be there if using the full paclet interface)"}], 
+            "ItemNumbered", CellID -> 137456886], 
+           Cell[TextData[{"the packages are all in a subfolder (this name of \
+this can be configured in ", Cell[BoxData[RowBox[{"PacletInfo", ".", "wl"}]], 
+               "InlineInput"], ")"}], "ItemNumbered", CellID -> 1692962477], 
+           Cell["we have a folder for the packages that we load as \
+dependencies (the name of this folder can also be configured)", 
+            "ItemNumbered", CellID -> 980870902]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["PacletInfo.wl", "Subsection", 
+         CellID -> 136261589], Cell[TextData[{"Our ", 
+           Cell[BoxData[RowBox[{"PacletInfo", ".", "wl"}]], "InlineInput"], " \
+file will look pretty much normal, with one notable change. Here's an \
+example:"}], "Text", CellID -> 1339226968], 
+        Cell[BoxData[RowBox[{"Paclet", "[", "\n", "  ", 
+            RowBox[{RowBox[{"Name", "\[Rule]", "\"MyPackage\""}], ",", "\n", 
+              "  ", RowBox[{"Version", "\[Rule]", "\"0.0.0\""}], ",", "\n", 
+              "  ", RowBox[{"Description", "\[Rule]", "\"MyPackage\""}], ",", 
+              "\n", "  ", RowBox[{"Extensions", "\[Rule]", RowBox[
+                 {"{", "\n", "    ", RowBox[{RowBox[{"{", "\n", "     ", 
+                      RowBox[{"\"Kernel\"", ",", "\n", "     ", RowBox[
+                         {"\"Root\"", "\[Rule]", "\".\""}], ",", "\n", 
+                        "     ", RowBox[{"\"Context\"", "\[Rule]", RowBox[
+                          {"{", "\"MyPackage`\"", "}"}]}]}], "\n", "     ", 
+                      "}"}], ",", "\n", "    ", RowBox[{"{", "\n", "     ", 
+                      RowBox[{"\"PackageFramework\"", ",", "\n", "     ", 
+                        RowBox[{"\"Dependencies\"", "\[Rule]", RowBox[
+                          {"{", "\n", "       ", RowBox[{RowBox[{"{", 
+                          "\"DependencyPackage1`\"", "}"}], ",", "\n", 
+                          "       ", RowBox[{"{", "\"DependencyPackage2`\"", 
+                          "}"}]}], "\n", "       ", "}"}]}]}], "\n", "     ", 
+                      "}"}]}], "\n", "    ", "}"}]}]}], "\n", "  ", "]"}]], 
+         "Code", CellID -> 2046456437], 
+        Cell[TextData[{"You'll notice that we have a new entry in the ", 
+           Cell[BoxData["Extensions"], "InlineInput"], ". This ", 
+           Cell[BoxData["\"PackageFramework\""], "InlineInput"], " setting is \
+going to be processed by the loader and any options you put there will be \
+used when loading your package."}], "Text", CellID -> 1752097034], 
+        Cell[TextData[{"The key one that we had to add here was the ", 
+           Cell[BoxData["\"Dependencies\""], "InlineInput"], " option. A full \
+listing of the options is forthcoming in the documentation page for ", 
+           Cell[BoxData["PackageFrameworkPackage"], "InlineInput"], "."}], 
+         "Text", CellID -> 1012284797], Cell["Beyond this small change, \
+everything is the same as for a normal paclet. If you have no dependencies, \
+this doesn't even need to look any different.", "Text", 
+         CellID -> 283611475]}, Open]], 
+     Cell[CellGroupData[{Cell["Package Files", "Subsection", 
+         CellID -> 2030379980], Cell[TextData[
+          {"Packages that make full use of the ", 
+           Cell[BoxData["PackageFramework"], "InlineInput"], " will be almost \
+entirely like normal packages, but with one minor change. Since ", 
+           Cell[BoxData["LoadPackage"], "InlineInput"], 
+           " will manage all of the contexts, we don't want to put ", 
+           Cell[BoxData["BeginPackage"], "InlineInput"], " and ", 
+           Cell[BoxData["EndPackage"], "InlineInput"], 
+           " into these packages. "}], "Text", CellID -> 1749641166], 
+        Cell["The loader will try to manage these elegantly, only stopping to \
+scan for declarations when it sees some form of private block, but it's \
+better to just leave them out.", "Text", CellID -> 364440295]}, Open]], 
+     Cell["Made with SimpleDocs", "Text", "Footer", CellID -> 1541745513]}, 
+    Open]]}, StyleDefinitions -> FrontEnd`FileName[{"SimpleDocs"}, 
+   "SimpleDocs.nb"], TaggingRules -> 
+  {"Metadata" -> {"built" -> "{2019, 12, 21, 22, 41, 44.342113}", 
+     "history" -> {"12.", "", ""}, "context" -> "PackageFramework`", 
+     "keywords" -> {}, "specialkeywords" -> {}, "tutorialcollectionlinks" -> 
+      {}, "index" -> True, "label" -> "UsingThePackageFramework", 
+     "language" -> "en", "paclet" -> "Mathematica", "status" -> "None", 
+     "summary" -> "", "synonyms" -> {}, "tabletags" -> {}, 
+     "title" -> "UsingThePackageFramework", "titlemodifier" -> "", 
+     "windowtitle" -> "UsingThePackageFramework", "type" -> "Tutorial", 
+     "uri" -> "PackageFramework/tutorial/UsingThePackageFramework"}, 
+   "ColorType" -> "TutorialColor", "SimpleDocs" -> 
+    {"Project" -> {"Name" -> "PackageFramework", "Directory" -> 
+        FrontEnd`FileName[{$UserDocumentsDirectory, "Wolfram Mathematica", 
+          "Applications"}, "PackageFramework"], "Config" -> 
+        FrontEnd`FileName[{"project", "docs"}, "config.wl"]}}}, 
+ ScreenStyleEnvironment -> "Editing"]

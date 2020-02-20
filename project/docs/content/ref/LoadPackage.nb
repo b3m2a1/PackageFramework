@@ -1,0 +1,168 @@
+Notebook[
+ {Cell[BoxData[RowBox[{RowBox[{"(*", " ", RowBox[{"Markdown", " ", 
+          "metadata"}], " ", "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"<|", "\[IndentingNewLine]", 
+        RowBox[{RowBox[{"\"Date\"", "\[RuleDelayed]", "Now"}], ",", 
+          "\[IndentingNewLine]", RowBox[{"\"ExportOptions\"", "\[Rule]", 
+            RowBox[{"{", "\[IndentingNewLine]", RowBox[{"(*", RowBox[
+                 {"\"UseImageInput\"", "\[Rule]", "True"}], "*)"}], 
+              "\[IndentingNewLine]", "}"}]}]}], "\[IndentingNewLine]", 
+        "|>"}]}]], "Metadata", CellID -> 1575184280], 
+  Cell["PackageFramework Symbol", "TitleBar", CellID -> 2091277391], 
+  Cell[CellGroupData[{Cell["LoadPackage", "Section", "SymbolName", 
+      CellID -> 234260088], Cell["", "UsageSection", CellID -> 871774065], 
+     Cell[BoxData[RowBox[{"LoadPackage", "[", RowBox[{"pkg", ",", " ", 
+           "parent"}], "]"}]], "Code", "UsageInput", CellID -> 1773270621], 
+     Cell[TextData[{"loads the package ", StyleBox["pkg", 
+         FontSlant -> "Italic"], " using ", StyleBox["parent", 
+         FontSlant -> "Italic"], " as the root package"}], "Text", 
+      "UsageText", CellID -> 581274081], 
+     Cell[BoxData[RowBox[{"LoadPackage", "[", "dir", "]"}]], "Code", 
+      "UsageInput", CellID -> 570369164], 
+     Cell[TextData[{"loads the package loaded from the directory ", 
+        StyleBox["dir", FontSlant -> "Italic"]}], "Text", "UsageText", 
+      CellID -> 1975022787], Cell[BoxData[RowBox[{"LoadPackage", "[", "ctx", 
+         "]"}]], "Code", "UsageInput", CellID -> 673595788], 
+     Cell[" has no usage message", "Text", "UsageText", 
+      CellID -> 1738105579], Cell[BoxData[RowBox[{"LoadPackage", "[", "]"}]], 
+      "Code", "UsageInput", CellID -> 553249430], 
+     Cell[" has no usage message", "Text", "UsageText", 
+      CellID -> 2006462147], Cell["", "UsageSectionFooter", 
+      CellID -> 62877845], Cell[CellGroupData[
+       {Cell["Details", "Subsection", "DetailsSection", CellID -> 225986591], 
+        Cell[CellGroupData[{Cell["LoadPackage has 5 call patterns", "Item", 
+            "DetailsItem", CellID -> 1405547041], 
+           Cell["LoadPackage has the following Options", "Item", 
+            "DetailsItem", CellID -> 709001087], Cell[CellGroupData[
+             {Cell["\"Reload\"", "Subitem", "DetailsItem", CellID -> 
+                1941995653], Cell["False", "Subsubitem", "DetailsItem", 
+               CellID -> 1664472865], Cell["\"PreloadHandler\"", "Subitem", 
+               "DetailsItem", CellID -> 1673456233], Cell["None", 
+               "Subsubitem", "DetailsItem", CellID -> 185583272], 
+              Cell["\"PostloadHandler\"", "Subitem", "DetailsItem", CellID -> 
+                951797060], Cell["None", "Subsubitem", "DetailsItem", 
+               CellID -> 247500917], Cell["\"Hook\"", "Subitem", 
+               "DetailsItem", CellID -> 72087780], Cell["None", "Subsubitem", 
+               "DetailsItem", CellID -> 398541552]}, Open]], 
+           Cell["LoadPackage can take Options from the following", "Item", 
+            "DetailsItem", CellID -> 286369471], Cell[CellGroupData[
+             {Cell["\"Reload\" -> False", "Subitem", "DetailsItem", CellID -> 
+                500846170], Cell["\"PreloadHandler\" -> None", "Subitem", 
+               "DetailsItem", CellID -> 1733166597], 
+              Cell["\"PostloadHandler\" -> None", "Subitem", "DetailsItem", 
+               CellID -> 862807871], Cell["\"Hook\" -> None", "Subitem", 
+               "DetailsItem", CellID -> 1402303353]}, Open]], 
+           Cell["LoadPackage has the following Messages", "Item", 
+            "DetailsItem", CellID -> 2026911693], 
+           Cell[CellGroupData[{Cell["LoadPackage::doc", "Subitem", 
+               "DetailsItem", CellID -> 771731890], Cell["\n\n", 
+               "Subsubitem", "DetailsItem", CellID -> 1844130997], 
+              Cell["LoadPackage::npkg", "Subitem", "DetailsItem", CellID -> 
+                1825673075], Cell["`` is not a valid package", "Subsubitem", 
+               "DetailsItem", CellID -> 841023189]}, Open]]}, Open]]}, 
+       Open]], Cell[CellGroupData[{Cell["Examples", "Subsection", 
+         "ExamplesSection", CellID -> 339372969], 
+        Cell[CellGroupData[{Cell["Basic Examples", "Subsubsection", 
+            "ExamplesSection", CellID -> 124923551], 
+           Cell["Load the package:", "Text", "ExamplesText", 
+            CellID -> 1498598538], Cell[BoxData[RowBox[{"Needs", "[", 
+               "\"PackageFramework`\"", "]"}]], "Code", "ExamplesInput", 
+            CellID -> 1257416150], Cell[BoxData[RowBox[{"LoadPackage", "[", 
+               RowBox[{RowBox[{"PackageFrameworkPackage", "[", "]"}], ",", 
+                 " ", "None"}], "]"}]], "Code", "ExamplesInput", 
+            CellID -> 314597217], Cell["LoadPackage[d]", "Text", 
+            "ExamplesText", CellID -> 330687205], 
+           Cell[BoxData[RowBox[{"LoadPackage", "[", "\"d\"", "]"}]], "Code", 
+            "ExamplesInput", CellID -> 172175999], Cell["LoadPackage[]", 
+            "Text", "ExamplesText", CellID -> 1101542684], 
+           Cell[BoxData[RowBox[{"LoadPackage", "[", "]"}]], "Code", 
+            "ExamplesInput", CellID -> 171369201], Cell["LoadPackage[ctx]", 
+            "Text", "ExamplesText", CellID -> 426590580], 
+           Cell[BoxData[RowBox[{"LoadPackage", "[", "\"ctx\"", "]"}]], 
+            "Code", "ExamplesInput", CellID -> 1407464374], 
+           Cell["LoadPackage[a]", "Text", "ExamplesText", 
+            CellID -> 721362113], Cell[BoxData[RowBox[{RowBox[{"LoadPackage", 
+                 "[", "a", "]"}], " ", "/;", " ", RowBox[{"Message", "[", 
+                 RowBox[{RowBox[{"LoadPackage", "::", "npkg"}], ",", " ", 
+                   "a"}], "]"}]}]], "Code", "ExamplesInput", 
+            CellID -> 1387845876]}, Open]], 
+        Cell[CellGroupData[{Cell["Options", "Subsubsection", 
+            "ExamplesSection", CellID -> 1705747865], 
+           Cell[CellGroupData[{Cell["Reload", "Subsubsubsection", 
+               "ExamplesSection", CellID -> 1745163252], 
+              Cell["Possible option values for \"Reload\" include:", "Text", 
+               "ExamplesText", CellID -> 627125638], Cell[BoxData[
+                RowBox[{"LoadPackage", "[", RowBox[{RowBox[
+                     {"PackageFrameworkPackage", "[", "]"}], ",", " ", 
+                    "None", ",", " ", RowBox[{"\"Reload\"", " ", "->", " ", 
+                      "False"}]}], "]"}]], "Code", "ExamplesInput", CellID -> 
+                250858390]}, Open]], Cell[CellGroupData[
+             {Cell["PreloadHandler", "Subsubsubsection", "ExamplesSection", 
+               CellID -> 666561669], Cell[
+               "Possible option values for \"PreloadHandler\" include:", 
+               "Text", "ExamplesText", CellID -> 1627268131], 
+              Cell[BoxData[RowBox[{"LoadPackage", "[", RowBox[
+                   {RowBox[{"PackageFrameworkPackage", "[", "]"}], ",", " ", 
+                    "None", ",", " ", RowBox[{"\"PreloadHandler\"", " ", 
+                      "->", " ", "None"}]}], "]"}]], "Code", "ExamplesInput", 
+               CellID -> 1291233172]}, Open]], Cell[CellGroupData[
+             {Cell["PostloadHandler", "Subsubsubsection", "ExamplesSection", 
+               CellID -> 1433668869], Cell[
+               "Possible option values for \"PostloadHandler\" include:", 
+               "Text", "ExamplesText", CellID -> 906161943], Cell[BoxData[
+                RowBox[{"LoadPackage", "[", RowBox[{RowBox[
+                     {"PackageFrameworkPackage", "[", "]"}], ",", " ", 
+                    "None", ",", " ", RowBox[{"\"PostloadHandler\"", " ", 
+                      "->", " ", "None"}]}], "]"}]], "Code", "ExamplesInput", 
+               CellID -> 2057235124]}, Open]], Cell[CellGroupData[
+             {Cell["Hook", "Subsubsubsection", "ExamplesSection", CellID -> 
+                1464012368], Cell[
+               "Possible option values for \"Hook\" include:", "Text", 
+               "ExamplesText", CellID -> 1935725297], Cell[BoxData[
+                RowBox[{"LoadPackage", "[", RowBox[{RowBox[
+                     {"PackageFrameworkPackage", "[", "]"}], ",", " ", 
+                    "None", ",", " ", RowBox[{"\"Hook\"", " ", "->", " ", 
+                      "None"}]}], "]"}]], "Code", "ExamplesInput", CellID -> 
+                1505298276]}, Open]]}, Open]], 
+        Cell[CellGroupData[{Cell["Definitions", "Subsubsection", 
+            "ExamplesSection", CellID -> 43279425], 
+           Cell["Examine all definitions:", "Text", "ExamplesText", 
+            CellID -> 1547823289], Cell[BoxData[RowBox[
+              {"GeneralUtilities`PrintDefinitionsLocal", "[", "LoadPackage", 
+               "]"}]], "Code", "ExamplesInput", CellID -> 1796602112]}, 
+          Open]]}, Open]], Cell[CellGroupData[
+       {Cell["See Also", "Subsection", "SeeAlso", CellID -> 1871619564], 
+        Cell["", "Text", CellID -> 2117034539]}, Open]], 
+     Cell[CellGroupData[{Cell["Related Guides", "Subsection", "Related", 
+         CellID -> 1490433477], Cell[CellGroupData[
+          {Cell[TextData[ButtonBox["Guide 1", BaseStyle -> "Link", 
+              ButtonData -> "paclet:Pkg/guide/Guide1"]], "Item", 
+            CellID -> 1466189331], Cell[TextData[ButtonBox["Guide 2", 
+              BaseStyle -> "Link", ButtonData -> "paclet:Pkg/guide/Guide2"]], 
+            "Item", CellID -> 2016720439]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["Related Links", "Subsection", "RelatedLinks", 
+         CellID -> 1286017672], Cell[CellGroupData[
+          {Cell[TextData[ButtonBox["Link 1", BaseStyle -> "Hyperlink", 
+              ButtonData -> {URL["https://google.com"], None}, 
+              ButtonNote -> "Link 1"]], "Item", CellID -> 1823589896], 
+           Cell[TextData[ButtonBox["Link 2", BaseStyle -> "Hyperlink", 
+              ButtonData -> {URL["https://paclets.github.io/PacletServer"], 
+                None}, ButtonNote -> "Link 2"]], "Item", 
+            CellID -> 188772088]}, Open]]}, Open]], 
+     Cell["Made with SimpleDocs", "Text", "Footer", CellID -> 859136397]}, 
+    Open]]}, StyleDefinitions -> FrontEnd`FileName[{"SimpleDocs"}, 
+   "SimpleDocs.nb"], TaggingRules -> 
+  {"Metadata" -> {"built" -> "{2019, 12, 22, 2, 19, 23.124563}", 
+     "history" -> {"12.", "", ""}, "context" -> "PackageFramework`", 
+     "keywords" -> {}, "specialkeywords" -> {}, "tutorialcollectionlinks" -> 
+      {}, "index" -> True, "label" -> "LoadPackage", "language" -> "en", 
+     "paclet" -> "Mathematica", "status" -> "None", "summary" -> "", 
+     "synonyms" -> {}, "tabletags" -> {}, "title" -> "LoadPackage", 
+     "titlemodifier" -> "", "windowtitle" -> "LoadPackage", 
+     "type" -> "Symbol", "uri" -> "PackageFramework/ref/LoadPackage"}, 
+   "ColorType" -> "SymbolColor", "SimpleDocs" -> 
+    {"Project" -> {"Name" -> "PackageFramework", "Directory" -> 
+        FrontEnd`FileName[{$UserDocumentsDirectory, "Wolfram Mathematica", 
+          "Applications"}, "PackageFramework"], "Config" -> 
+        FrontEnd`FileName[{"project", "docs"}, "config.wl"]}}}, 
+ ScreenStyleEnvironment -> "Editing"]

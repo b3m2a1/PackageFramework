@@ -8,14 +8,24 @@
 (*Post-Processing*)
 
 
-PackagePostProcessPrepSpecs::usage="";
-PackagePrepPackageSymbol::usage="";
-PackagePostProcessExposePackages::usage="";
-PackagePostProcessRehidePackages::usage="";
-PackagePostProcessDecontextPackages::usage="";
-PackagePostProcessContextPathReassign::usage="";
-PackageAttachMainAutocomplete::usage="";
-PackagePreemptShadowing::usage="";
+PackagePrepPackageSymbol::usage="PackagePrepPackageSymbol[pkg] configures the PackageHead if that \
+has been enabled for the package";
+
+
+PackageExposeFrontEndSymbols::usage="PackageExposeFrontEndSymbols[pkg] makes the \
+symbols that were hidden from the front end visible";
+PackageHideFrontEndSymbols::usage="PackageHideFrontEndSymbols[pkg] hides the symbols that need to be \
+hidden from the front end";
+PackageDecontextPackages::usage="PackageDecontextPackages[pkg] moves symbols to a hidden context if \
+they need to be hidden";
+
+
+PackageContextPathReassign::usage="PackageContextPathReassign[pkg] resets the $ContextPath \
+so that only the things that should be visible have been made visible";
+
+
+PackageAttachMainAutocomplete::usage="PackageAttachMainAutocomplete[pkg] attaches autocomplete rules \
+to the package head if they should be added";
 
 
 (* ::Subsection:: *)
@@ -26,120 +36,73 @@ Begin["`Private`"];
 
 
 (* ::Subsubsection:: *)
-(*PrepFileName*)
+(*PackageNamePattern*)
 
 
-PackagePostProcessFileNamePrep[fn_]:=
+getPackageNamePattern[fn_, root_]:=
     Replace[
       FileNameSplit@
-        FileNameDrop[fn,
-          FileNameDepth@
-            PackageFilePath["Packages"]
-          ],{
-      {f_}:>
-        f|fn|StringTrim[f,".m"|".wl"],
-      {p__,f_}:>
-        FileNameJoin@{p,f}|fn|{p,StringTrim[f,".m"|".wl"]}
-      }]
-
-
-(* ::Subsubsection:: *)
-(*PrepSpecs*)
-
-
-PackagePostProcessPrepSpecs[]:=
-  (
-    Unprotect[
-      $PackagePreloadedPackages,
-      $PackageHiddenPackages,
-      $PackageHiddenContexts,
-      $PackageExposedContexts,
-      $PackageDecontextedPackages
-      ];
-    Replace[
-      $PackageLoadSpecs,
-      specs:{__Rule}|_Association:>
-        CompoundExpression[
-          $PackagePreloadedPackages=
-            Replace[
-              Lookup[specs, "PreLoad"],
-              Except[{__String}]->{}
-              ],
-          $PackageHiddenPackages=
-            Replace[
-              Lookup[specs,"FEHidden"],
-              Except[{__String}]->{}
-              ],
-          $PackageDecontextedPackages=
-            Replace[
-              Lookup[specs,"PackageScope"],
-              Except[{__String}]->{}
-              ],
-          $PackageExposedContexts=
-            Replace[
-              Lookup[specs,"ExposedContexts"],
-              Except[{__String}]->{}
-              ]
-          ]
-        ]
-    );
+        If[FileExistsQ@fn,
+          FileNameDrop[ExpandFileName@fn, FileNameDepth@root],
+          fn
+          ],
+      {
+        {f_}:>
+          f|fn|StringTrim[f, ".m"|".wl"],
+        {p__,f_}:>
+          FileNameJoin@{p,f}|fn|{p, StringTrim[f,".m"|".wl"]}
+        }
+      ]
 
 
 (* ::Subsubsection:: *)
 (*ExposePackages*)
 
 
-PackagePostProcessExposePackages[]/;TrueQ[$AllowPackageRecoloring]:=
-  (
-    PackageAppGet/@
-      $PackagePreloadedPackages;
-    With[{
-      syms=
-        If[
-          !MemberQ[$PackageHiddenPackages,
-            PackagePostProcessFileNamePrep[#]
-            ],
-          $DeclaredPackages[#],
-          {}
-          ]&/@Keys@$DeclaredPackages//Flatten
+(*PackageManageHiddenPackage::docs="
+Takes any package that's not declared as hidden
+"
+PackageManageHiddenPackages[pkg_]:=
+  Module[
+    {
+      hiddenPackages= PackageHiddenPackages[pkg],
+      pkgRoot = PackageRoot[pkg, "Packages"],
+      decs = PackageDeclaredPackages[pkg],
+      hiddenSyms,
+      exposedSyms
       },
-      Replace[
-        Thread[
-          If[ListQ@$PackageFEHiddenSymbols,
-            DeleteCases[syms,
-              Alternatives@@
-                (Verbatim[HoldPattern]/@Flatten@$PackageFEHiddenSymbols)
-              ],
-            syms
+    exposedSyms=
+      If[!MemberQ[hiddenPackages, getPackageNamePattern[#, pkgRoot]],
+        decs[#],
+        {}
+        ]&/@Keys@decs//Flatten;
+    hiddenSyms=
+      If[!MemberQ[hiddenPackages, getPackageNamePattern[#, pkgRoot]],
+        decs[#],
+        {}
+        ]&/@Keys@decs//Flatten;
+    Replace[
+      Thread[
+        If[ListQ@$PackageFEHiddenSymbols,
+          DeleteCases[
+            exposedSyms,
+            Alternatives@@
+              (Verbatim[HoldPattern]/@Flatten@$PackageFEHiddenSymbols)
             ],
-          HoldPattern],
-        Verbatim[HoldPattern][{s__}]:>
-          PackageFEUnhideSymbols[s]
-        ]
+          exposedSyms
+          ],
+        HoldPattern],
+      Verbatim[HoldPattern][{s__}]:>
+        AddFrontEndSymbolColoring[s]
       ]
-    )
-
-
-
-
-(* ::Subsubsection:: *)
-(*Rehide Packages*)
-
-
-PackagePostProcessRehidePackages[]/;TrueQ[$AllowPackageRecoloring]:=
-  If[
-    MemberQ[$PackageHiddenPackages,
-      PackagePostProcessFileNamePrep[#]
-      ],
-    PackageFERehidePackage@#
-    ]&/@Keys@$DeclaredPackages
+    ]*)
 
 
 (* ::Subsubsection:: *)
 (*Decontext*)
 
 
-PackagePostProcessDecontextPackages[]/;TrueQ[$AllowPackageRecoloring]:=
+(*PackagePostProcessDecontextPackages[]/;TrueQ[$AllowPackageRecoloring]:=
   (
     If[
       MemberQ[$PackageDecontextedPackages,
@@ -177,99 +140,85 @@ PackagePostProcessDecontextPackages[]/;TrueQ[$AllowPackageRecoloring]:=
       ]
     )
 
-
+*)
 
 
 (* ::Subsubsection:: *)
 (*ContextPathReassign*)
 
 
-PackagePostProcessContextPathReassign[]:=
-  With[{cp=$ContextPath},
+(*PackagePostProcessContextPathReassign[pkg_]:=
+  With[
+    {
+      cp=$ContextPath, 
+      mctx=PackageContext[pkg]
+      },
     If[MemberQ[cp],
-      "$Name`",
+      mctx,
       $ContextPath=
         Join[
           Replace[
-            Flatten@{$PackageExposedContexts},
+            Flatten@{PackageExposedContexts[pkg]},
             Except[_String?(StringEndsQ["`"])]->Nothing,
             1
             ],
           $ContextPath
           ];
-      If[TrueQ[$AllowPackageRecoloring], 
+      If[TrueQ[AllowPackageSymbolDefinitions[pkg]]&&$Notebooks, 
         FrontEnd`Private`GetUpdatedSymbolContexts[]
         ];
       ]
-    ]
+    ]*)
 
 
 (* ::Subsubsection:: *)
 (*AttachMainAutocomplete*)
 
 
-PackageAttachMainAutocomplete[]:=
-  PackageAddAutocompletions[$Name, 
-    Table[
-      Replace[{}->None]@
-        Cases[
-          DownValues[$Name],
-          Nest[
-            Insert[#, _, {1, 1, 1}]&,
-            (HoldPattern[Verbatim[HoldPattern]][
-              $Name[s_String, ___]
-              ]:>_),
-            n-1
-            ]:>s,
-          Infinity
-          ],
-      {n, 5}
+(*PackageAttachMainAutocomplete[pkg_]:=
+  With[{$Name=PackageHead[pkg]},
+    PackageAddAutocompletions[
+      $Name, 
+      Table[
+        Replace[{}->None]@
+          Cases[
+            DownValues[$Name],
+            Nest[
+              Insert[#, _, {1, 1, 1}]&,
+              (HoldPattern[Verbatim[HoldPattern]][
+                $Name[s_String, ___]
+                ]:>_),
+              n-1
+              ]:>s,
+            Infinity
+            ],
+        {n, 5}
+        ]
       ]
-    ];
-
-
-(* ::Subsubsection:: *)
-(*PreventShadowing*)
-
-
-PackagePreemptShadowing[]:=
-  Replace[
-    Hold[{m___}]:>
-      Off[m]
-      ]@
-    Thread[
-      ToExpression[
-        Map[#<>"$"&, Names["`PackageScope`Private`*"]
-        ],
-        StandardForm,
-        Function[Null, 
-          Hold[MessageName[#, "shdw"]],
-          HoldAllComplete
-          ]
-        ],
-      Hold
-      ]
+    ];*)
 
 
 (* ::Subsubsection:: *)
 (*PackagePrepPackageSymbol*)
 
 
-PackagePrepPackageSymbol[]:=
-  Switch[$AllowPackageSymbolDefinitions,
-    None,
-      If[Length@OwnValues[$Name]==0,
-        Remove[$Name],
-        DownValues[$Name]={}
-        ],
-    False,
-      If[Length@OwnValues[$Name]==0,
-        Clear[$Name],
-        DownValues[$Name]={}
-        ],
-    _,
-      PackageAttachMainAutocomplete[]
-    ]
+(*PackagePrepPackageSymbol[pkg_]:=
+  With[{$Name=PackageHead[pkg], $AllowPackageSymbolDefinitions=AllowPackageSymbolDefinitions[pkg]},
+    Switch[$AllowPackageSymbolDefinitions,
+      None,
+        If[Length@OwnValues[$Name]==0,
+          Remove[$Name],
+          DownValues[$Name]={}
+          ],
+      False,
+        If[Length@OwnValues[$Name]==0,
+          Clear[$Name],
+          DownValues[$Name]={}
+          ],
+      _,
+        PackageAttachMainAutocomplete[pkg]
+      ]
+    ]*)
 
 
 (* ::Subsection:: *)

@@ -1,220 +1,273 @@
 (* ::Package:: *)
 
-(* ::Subsection:: *)
+(* ::Section:: *)
 (*Loading*)
 
 
-$PackageFileContexts::usage="The contexts for files in the package";
-$DeclaredPackages::usage="The set of packages found and declared via the autoloader";
-$LoadedPackages::usage="The set of loaded packages";
+(* ::Text:: *)
+(*Handles the heart of the loading process for the package by scanning the structure, setting up autoload rules, etc.*)
 
 
-PackageExecute::usage="Executes something with the package contexts exposed";
-PackageLoadPackage::usage="Loads a package via PackageExecute";
-PackageLoadDeclare::usage="Declares a package";
+PackageExecute::usage="PackageExecute[pkg, expr] executes expr in the right context path";
 
 
-PackageAppLoad::usage="";
-PackageAppGet::usage="";
-PackageAppNeeds::usage="";
+PackagePullDeclarations::usage="PackagePullDeclarations[pkg] finds all the declared symbols \
+in a package";
+PackageAutoloadPackage::usage="PackageAutoloadPackage[pkg] loads a package via PackageExecute when the \
+symbol it is bound to is used";
+PackageLoadDeclare::usage="PackageLoadDeclare[pkg, file] handles the declaration process for single \
+package file";
 
 
-PackageScopeBlock::usage="";
-PackageFERehideSymbols::usage="Predeclared here...";
-PackageDecontext::usage="";
-PackageRecontext::usage="";
+PackageFrameworkPackageLoad::usage="PackageFrameworkPackageLoad[pkg] handles the entire declaration \
+process for a package";
+PackageFrameworkPackageGet::usage=
+  "Loads a specific subpackage file using Get with the appropriate directory structure";
+PackageFrameworkPackageNeeds::usage=
+  "Loads a specific subpackage file if it hasn't already been loaded";
 
 
-PackageEnsureLoadDependencies::usage="Predeclared...";
-PackageEnsureLoad::usage="Ensures everything is loaded";
+PackageEnsureLoad::usage="PackageEnsureLoad[pkg] loads the package if it has not already been loaded";
+PackageCompleteLoadProcess::usage="PackageCompleteLoadProcess[pkg] finalizes the load process for \
+the package";
 
 
-PackageBindMethods::usage="";
-
-
-(* ::Subsubsection:: *)
-(*Begin*)
+(* ::Subsection:: *)
+(*Private*)
 
 
 Begin["`Private`"]
 
 
-PackageBindMethods[pkg_PackageFrameworkPackage]:=
-  With[{$Head=PackageHead[pkg]},
-    $Head["Directory"]:=PackageDirectory[pkg];
-    $Head["Name"]:=PackageName[pkg];
-    $Head["LoadingParameters"]:=PackageLoadSpecs[pkg];
-    (* Stuff for Loading *)
-    $Head["FileContexts"]:=PackageFileContexts[pkg];
-    $Head["DeclaredPackages"]:=PackageDeclaredPackages[pkg];
-    $Head["DeclaredPackages"]:=PackageDeclaredPackages[pkg];
-    $Head["LoadedPackages"]:=PackageLoadedPackages[pkg];
-    ];
-
-
-(* ::Subsubsection:: *)
-(*Constants*)
-
-
-If[Not@AssociationQ@$PackageFileContexts,
-  $PackageFileContexts=
-    <||>
-  ];
-
-
-If[Not@AssociationQ@$DeclaredPackages,
-  $DeclaredPackages=
-    <||>
-  ];
-
-
-If[Not@ListQ@$LoadedPackages,
-  $LoadedPackages={}
-  ];
-
-
-(* ::Subsubsection:: *)
-(*PackageFileContext*)
-
-
-(* ::Text:: *)
-(*Gotta make this more flexible.*)
-(*The basic idea will be to allow the Package to declare its chosen "root" context, then we build off of that.*)
-(*Subdirectory names _might_ be allowed to map themselves to a different context in the future?*)
-
-
-PackageFileContextPath[f_String?DirectoryQ]:=
-  FileNameSplit[
-    FileNameDrop[f, FileNameDepth[$PackageDirectory]+1]
-    ];
-PackageFileContextPath[f_String?FileExistsQ]:=
-  PackageFileContextPath[DirectoryName@f];
-
-
-PackageFileContext[f_String?DirectoryQ]:=
-  With[{s=PackageFileContextPath[f]},
-    StringRiffle[Append[""]@Prepend[s,$Name],"`"]
-    ];
-PackageFileContext[f_String?FileExistsQ]:=
-  PackageFileContext[DirectoryName[f]];
-
-
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageExecute*)
 
 
-PackageExecute[expr_]:=
-  Internal`WithLocalSettings[
-    Begin[$PackageContexts[[1]]];
-    System`Private`NewContextPath@
-      Prepend[
-        $PackageContexts,
-        "System`"
-        ];,
-    expr,
-    System`Private`RestoreContextPath[];
-    End[];
+PackageExecute//Clear
+PackageExecute[
+  pkg_PackageFrameworkPackage, 
+  expr_, 
+  context:_String|Automatic:Automatic
+  ]:=
+  With[{ctxs=PackageContexts[pkg]},
+    Block[{$CurrentPackage=pkg},
+      Internal`WithLocalSettings[
+        Begin[Replace[context, Automatic->ctxs[[1]]]];
+        System`Private`NewContextPath@
+          Prepend[ctxs, "System`"];,
+        expr,
+        System`Private`RestoreContextPath[];
+        End[];
+        ]
+      ]
     ];
-PackageExecute~SetAttributes~HoldFirst
+PackageExecute~SetAttributes~HoldRest
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackagePullDeclarations*)
+
+
+(* ::Text:: *)
+(*This is another big place where we need to introduce greater flexibility*)
+(*The current design looks for a few things:*)
+(**)
+(*Begin[...] / BeginPackage[...]*)
+(**)
+(*We need to add some flexbility to this design, though.*)
+(**)
+(*Any statement up until a Begin["`Private*`"] should be allowed to operate as normal (but the number of necessary End[] and EndPackage[] statements should be incremented). The reason for this is that we'd like to be able to handle any type of auto-completion as longs as it's generally within the traditional Mathematica package design framework.*)
+
+
+(* ::Text:: *)
+(*This basically means we need to handle a few distinct subcases of package layouts. We can have the classic:*)
+(**)
+(*  ExposedSymbolA::usage="....";*)
+(*  ExposedSymbolB::usage="....";*)
+(*  ExposedSymbolC::usage="....";*)
+(**)
+(*  Begin["`Private`"]*)
+(*  (* End Here *)*)
+(**)
+(*But I'd also like to be able to appropriately handle the case of *)
+(**)
+(*  BeginPackage["MainPackageName`"]*)
+(*  *)
+(*  ExposedSymbolA::usage="....";*)
+(*  ExposedSymbolB::usage="....";*)
+(*  ExposedSymbolC::usage="....";*)
+(**)
+(*  Begin["`Private`"]*)
+(*  (* End Here *)*)
+(*  *)
+(*On the other hand, we might also want to support something like:*)
+(**)
+(*  BeginPackage["`SubPackageName`"]*)
+(*  *)
+(*  ExposedSymbolA::usage="....";*)
+(*  ExposedSymbolB::usage="....";*)
+(*  ExposedSymbolC::usage="....";*)
+(**)
+(*  Begin["`Private`"]*)
+(*  (* End Here *)*)
+(**)
+(*but in that case there's some question as to how we want to implement this. Should we be placing autocompletions onto these sub-symbols too?*)
+
+
+(* ::Text:: *)
+(*Another question that arises: Should we be overloading stuff like Begin and BeginPackage in this initialization phase? That would make it possible to not have to catch every possible pattern inside PackagePullDeclarationsAction, but at the same time runs the risk of massive breakage if things go wrong.*)
+(**)
+(*Something to think about in the future...*)
 
 
 PackagePullDeclarationsAction//Clear
 PackagePullDeclarationsAction[
-  Hold[
-    _Begin|_BeginPackage|
-      CompoundExpression[_Begin|_BeginPackage,___]
+  a:Hold[
+    (h:Begin|BeginPackage)[e_, r___]|
+    CompoundExpression[
+      (h:Begin|BeginPackage)[e_, r___], 
+      ___
+      ]
     ]
   ]:=
-  Throw[Begin];
+  If[StringQ[e]&&StringStartsQ[e, "`Private"],
+    Throw[End, $EndPackageDeclaration[$CurrentPackageFile]],
+    h[e, r]; (* allow the Begin or BeginPackage to activate *)
+    Switch[h, 
+      Begin, $EndCallStack = {End, $EndCallStack},
+      BeginPackage, $EndCallStack = {EndPackage, $EndCallStack}
+      ];
+    AssociateTo[$PackageContexts, $Context->None]
+    ];
 PackagePullDeclarationsAction[
-  p:
-    Hold[
-      _PackageFEHiddenBlock|_PackageScopeBlock|
-      CompoundExpression[
-        _PackageFEHiddenBlock|_PackageScopeBlock,
-        ___]
+  a:Hold[
+    (h:End|EndPackage)[]|
+    CompoundExpression[
+      (h:End|EndPackage)[___], 
+      ___
       ]
-  ]/;TrueQ[$AllowPackageRescoping]:=
+    ]
+  ]:=
   (
-    ReleaseHold[p];
-    Sow[p];
+    h[];
+    If[Length@$EndCallStack == 2,
+      $EndCallStack = $EndCallStack[[2]]
+      ];
     );
 PackagePullDeclarationsAction[e:Except[Hold[Expression]]]:=
   Sow@e;
 
 
-PackagePullDeclarations[pkgFile_]:=
-  pkgFile->
-    Cases[
-        Reap[
-          With[{f=OpenRead[pkgFile]},
-            Catch@
-              Do[
+PackagePullDeclarations[pkg_, pkgFile_]:=
+  Module[{decStatements, stream, packageSymbols},
+    Block[
+      {
+        $EndCallStack = {}, 
+          (* 
+            We'll sow in End and EndPackage statement as necessary so that we can just
+            map over the flattened version of the stack after we're done with finding all
+            of our package declarations
+            *)
+        $PackageLoadedContexts = 
+          <| PackageFileContext[pkg, pkgFile] -> None |>,
+        $CurrentPackageFile = pkgFile
+        },
+      Internal`WithLocalSettings[
+        stream = OpenRead[pkgFile],
+        decStatements = 
+          Reap[
+            Catch[
+              Do[ 
+                (* read the package block-by-block and cache the relevant symbols *)
                 If[
                   Length[
                     ReadList[
-                      f,
+                      stream,
                       PackagePullDeclarationsAction@Hold[Expression],
                       1
                       ]
                     ]===0,
-                    Throw[EndOfFile]
+                    Throw[
+                      EndOfFile,
+                      $EndPackageDeclaration[$CurrentPackageFile]
+                      ]
                   ],
                 Infinity
-                ];
-            Close[f]
+                ],
+              $EndPackageDeclaration[$CurrentPackageFile]
+             ]
+          ][[2]],
+        Close[stream];
+        Map[#[]&, Flatten@$EndCallStack];
+        ];
+    packageSymbols=
+      Cases[
+        decStatements,
+        s_Symbol?(
+          Function[
+            Null,
+            Quiet[KeyExistsQ[$PackageLoadedContexts, Context[#]]],
+            HoldAllComplete
             ]
-        ][[2,1]],
-      s_Symbol?(
-        Function[Null,
-          Quiet[Context[#]===$Context],
-          HoldAllComplete
-          ]
-          ):>
-          HoldPattern[s],
-      Infinity
-      ]
+            ):>
+            HoldPattern[s],
+        Infinity
+        ];
+    AddPackageSymbols[pkg, packageSymbols];
+    PackageExtendContextPath[pkg, Keys@$PackageLoadedContexts];
+    pkgFile->{Keys@$PackageLoadedContexts, packageSymbols}
+    ] 
+  ]
 
 
-(* ::Subsubsection:: *)
-(*PackageLoadPackage*)
+(* ::Subsubsection::Closed:: *)
+(*PackageAutoloadPackage*)
 
 
-PackageLoadPackage[heldSym_, context_, pkgFile_->syms_]:=
+(* ::Text:: *)
+(*Handles the actual loading of a file. This is set up by the declarer to autoload all the package symbols.*)
+
+
+PackageAutoloadPackage//Clear
+PackageAutoloadPackage[pkg_PackageFrameworkPackage, heldSym_, context_, pkgFile_->syms_]:=
   Block[
     {
-      $loadingChain=If[ListQ@$loadingChain, $loadingChain, {}],
-      $inLoad=TrueQ[$inLoad],
-      $$inLoad=TrueQ[$inLoad],
-      recolor=!TrueQ[$inLoad]&&$AllowPackageRecoloring
+      $loadingChain=
+        If[!AssociationQ@$inLoad, 
+          $loadingChain = <| pkg -> {} |>,
+          If[!KeyExistsQ[$loadingChain, pkg],
+            Append[$loadingChain, pkg->{}],
+            $loadingChain
+            ]
+          ],
+      $inLoad=
+        If[!AssociationQ@$inLoad, 
+          <|pkg->False|>, 
+          If[!KeyExistsQ[$inLoad, pkg],
+            Append[$inLoad, pkg->False],
+            TrueQ[$inLoad]
+            ]
+          ],
+      $$inLoad=TrueQ[$inLoad[pkg]],
+      ignored=With[{ss=pkg["AutoloadIgnored"]}, nonProtectedSym[ss]]
       },
-    If[!MemberQ[$loadingChain, pkgFile],
-      AppendTo[$loadingChain, pkgFile];
-      $inLoad=True;
+    If[!MemberQ[$loadingChain[pkg], pkgFile],
+      AppendTo[$loadingChain[pkg], pkgFile];
+      $inLoad[pkg]=True;
       Internal`WithLocalSettings[
         (* holds the CPath so it can be restored later *)
-        System`Private`NewContextPath@$ContextPath;
-        If[recolor, Internal`SymbolList[False]],
+        System`Private`NewContextPath@$ContextPath,
+        
+        (* Clear, but only for OwnValues *)
         Replace[syms,
-          s_Symbol|Verbatim[HoldPattern][s_Symbol]:>
+          (s_Symbol?ignored)|Verbatim[HoldPattern][s_Symbol?ignored]:>
             (OwnValues[s]={}),
           1
           ];
-        (*If[Not@MemberQ[$ContextPath, context],
-          $ContextPath=Prepend[$ContextPath, context];
-          ];*)(* I don't see how this can do anything...? *)
-        Block[{PackageFEHiddenBlock=Null},
-          PackageEnsureLoad[];
-          PackageAppGet[context, pkgFile];
-          ];
-        Unprotect[$LoadedPackages];
-        AppendTo[$LoadedPackages, pkgFile];
-        Protect[$LoadedPackages],
-        If[recolor, Internal`SymbolList[True]];
+        PackageEnsureLoad[pkg];
+        PackageFrameworkPackageGet[pkg, context[[1]], pkgFile];
+        PackageAddLoadedPackage[pkg, pkgFile],
+          
         System`Private`RestoreContextPath[]
         ];
       ReleaseHold[heldSym]
@@ -222,302 +275,246 @@ PackageLoadPackage[heldSym_, context_, pkgFile_->syms_]:=
     ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageDeclarePackage*)
 
 
-PackageDeclarePackage[pkgFile_->syms_]:=
-  With[{c=$Context},
-    $DeclaredPackages[pkgFile]=syms;
-    $PackageFileContexts[pkgFile]=c;
-    Replace[syms,
-      s_Symbol|Verbatim[HoldPattern][s_Symbol]:>
-        SetDelayed[
-          s,
-          PackageLoadPackage[HoldPattern[s], c, pkgFile->syms]
-          ],
+(*CreatePackageSymbolInterface[$DeclaredPackages, "DeclaredPackages", PackageDeclaredPackages[#]&];*)
+
+
+PackageDeclaredPackages[pkg_]:=
+  Replace[
+    PropertyValue[pkg, "DeclaredPackages"],
+    _Missing:>(
+      SetProperty[pkg, "DeclaredPackages"-><||>]; 
+      <||>
+      )
+    ]
+
+
+nonProtectedSym[protectedSyms_]:=
+  Function[Null, nonProtectedSym[#, protectedSyms], HoldAllComplete];
+nonProtectedSym[sym_, protectedSyms_]:=
+  !MemberQ[protectedSyms, SymbolName@Unevaluated[sym]]
+nonProtectedSym~SetAttributes~HoldAllComplete
+
+
+PackageDeclarePackage[
+  pkg_, 
+  pkgFile_->{contexts_, syms_}
+  ]:=
+  With[{test=With[{e=pkg["AutoloadIgnored"]}, nonProtectedSym[e]]},
+    SetProperty[pkg, {"DeclaredPackages", pkgFile}->syms];
+    SetProperty[pkg, {"FileContexts", pkgFile}->contexts];
+    Replace[
+      syms,
+      {
+        (s:_Symbol?test)|
+          (Verbatim[HoldPattern][s_Symbol?test]):>
+          (
+            If[MemberQ[Attributes[s], Protected],
+              Unprotect[s]
+              ];
+            SetDelayed[
+              s,
+              PackageAutoloadPackage[pkg, HoldPattern[s], contexts, pkgFile->syms]
+              ]
+            ),
+        e_->Nothing
+        },
       1
       ]
     ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageLoadDeclare*)
 
 
-PackageLoadDeclare[pkgFile_String]:=
-  If[!MemberQ[$LoadedPackages,pkgFile],
-    If[!KeyMemberQ[$DeclaredPackages,pkgFile],
-      PackageDeclarePackage@
-        PackagePullDeclarations[pkgFile]
+PackageLoadDeclare//Clear
+PackageLoadDeclare[pkg_PackageFrameworkPackage, pkgFile_String]:=
+  If[!MemberQ[PackageLoadedPackages[pkg], pkgFile],
+    If[!KeyMemberQ[PackageDeclaredPackages[pkg], pkgFile],
+      If[AssociationQ[$PackageDeclarationList]&&KeyExistsQ[$PackageDeclarationList, pkg],
+        $PackageDeclarationList[pkg]=
+          Append[$PackageDeclarationList[pkg], PackagePullDeclarations[pkg, pkgFile]],
+        PackageDeclarePackage[
+          pkg,
+          PackagePullDeclarations[pkg, pkgFile]
+          ]
+        ]
       ],
-    PackageAppGet[pkgFile]
+    PackageFrameworkPackageGet[pkg, pkgFile]
     ];
 
 
-(* ::Subsubsection:: *)
-(*PackageAppLoad*)
+(* ::Subsubsection::Closed:: *)
+(*PackageFrameworkPackageLoad*)
 
 
-$Name["Load", args___]:=
-  PackageAppLoad[args]
+BindPackageMethod["Load", PackageFrameworkPackageLoad];
 
 
-packageAppLoad[dir_, listing_]:=
-  With[
+PackageFrameworkPackageLoad//Clear
+PackageFrameworkPackageLoad::doc="
+Loops over all of the available files in the package and \
+creates subcontexts for directories and configures auto-loading for the package files
+";
+PackageFrameworkPackageLoad[pkg_PackageFrameworkPackage, dir_, listing_]:=
+  Module[
     {
       fileNames=
         Select[
           FileNames["*", dir],
           DirectoryQ@#||MatchQ[FileExtension[#], "m"|"wl"]&
-          ]
+          ],
+       preload,
+       packages,
+       postload
       },
-    Replace[
+    (* preloaded packages *)
+    preload = 
       Select[fileNames, 
         StringMatchQ[
           ToLowerCase@FileNameTake[#],
           "__pre__."~~("m"|"wl")
           ]&
-        ],
-      {f_}:>Get[f]
-      ];
-    PackageAppLoad[
-      $PackageListing[listing]=
-        Select[fileNames, StringFreeQ["__"]@*FileBaseName]
-      ];
-    Replace[
+        ];
+    If[Length@preload>0, Get[preload[[-1]]]];
+    (* normally loaded packages *)
+    packages = Select[fileNames, StringFreeQ["__"]@*FileBaseName];
+    SetProperty[pkg, {"PackageListing", listing}->packages];
+    PackageFrameworkPackageLoad[pkg, packages];
+    (* packages loaded after all the others at that level *)
+    postload = 
       Select[fileNames, 
         StringMatchQ[
-          ToLowerCase@FileNameTake[#], 
+          ToLowerCase@FileNameTake[#],
           "__post__."~~("m"|"wl")
           ]&
-        ],
-      {f_}:>Get[f]
-      ];
+        ];
+    If[Length@postload>0, Get[postload[[-1]]]];
     ];
 
 
-PackageAppLoad[dir_String?DirectoryQ]:=
-  If[StringMatchQ[FileBaseName@dir,(WordCharacter|"$")..],
-    Internal`WithLocalSettings[
-      Begin["`"<>FileBaseName[dir]<>"`"],
-      AppendTo[$PackageContexts, $Context];
-      packageAppLoad[dir, FileNameDrop[dir,FileNameDepth[$PackageDirectory]+1]],
-      End[];
-      ]
-    ];
-PackageAppLoad[file_String?FileExistsQ]:=
-  PackageLoadDeclare[file];
-PackageAppLoad[]:=
-  PackageExecute@
-    packageAppLoad[
-      FileNameJoin@{$PackageDirectory, $PackagePackagesDirectory}, 
-      $PackageName
-      ];
-PackageAppLoad~SetAttributes~Listable;
-
-
-(* ::Subsubsection:: *)
-(*PackageAppGet*)
-
-
-$Name["Get", f__]:=
-  PackageAppGet[f];
-PackageAppGet[f_]:=
-  PackageExecute@
-    With[{fBase = 
-      If[FileExistsQ@f,
-        f,
-        PackageFilePath[$PackagePackagesDirectory, f<>".m"]
-        ]
-      },
-      With[{cont = 
-        Most@
-          FileNameSplit[
-            FileNameDrop[fBase, 
-              FileNameDepth[PackageFilePath[$PackagePackagesDirectory]]
-              ]
-            ]},
-        If[Length[cont]>0,
-          Begin[StringRiffle[Append[""]@Prepend[""]@cont, "`"]];
-          (End[];#)&@Get[fBase],
-          Get[fBase]
-        ]
-      ]
-    ];
-PackageAppGet[c_,f_]:=
-  PackageExecute[
-    Begin[c];
-    (End[];#)&@
-      If[FileExistsQ@f,
-        Get@f;,
-        Get@PackageFilePath[$PackagePackagesDirectory, f<>".m"]
-        ]
-    ];
-
-
-(* ::Subsubsection:: *)
-(*PackageAppNeeds*)
-
-
-$Name["Needs", f___]:=
-  PackageAppNeeds[f];
-
-
-PackageAppNeeds[pkgFile_String?FileExistsQ]:=
-  If[!MemberQ[$LoadedPackages,pkgFile],
-    If[KeyMemberQ[$DeclaredPackages,pkgFile],
-      PackageLoadDeclare[pkgFile],
-      Do[PackageLoadDeclare[pkgFile],2]
-      ];
-    ];
-
-
-PackageAppNeeds[pkg_String]:=
-  If[FileExistsQ@PackageFilePath[$PackagePackagesDirectory, pkg<>".m"],
-    PackageAppNeeds[PackageFilePath[$PackagePackagesDirectory, pkg<>".m"]],
-    $Failed
-    ];
-
-
-(* ::Subsubsection:: *)
-(*PackageScopeBlock*)
-
-
-$PackageScopeBlockEvalExpr=TrueQ[$PackageScopeBlockEvalExpr];
-PackageScopeBlock[
-  e_,
-  scope:_String?(StringFreeQ["`"]):"Package",
-  context:_String?(StringEndsQ["`"]):"`PackageScope`"
-  ]/;TrueQ[$AllowPackageRescoping]:=
-  With[{
-    newcont=
-      If[StringStartsQ[context, "`"],
-        "$Name"<>context<>scope<>"`",
-        context<>scope<>"`"
-        ],
-    res=If[$PackageScopeBlockEvalExpr,e]
-    },
-    If[!MemberQ[$PackageContexts, newcont],
-      Unprotect[$PackageContexts];
-      AppendTo[$PackageContexts,newcont];
-      ];
-    Replace[
-      Thread[
-        Cases[
-          HoldComplete[e],
-          sym_Symbol?(
-            Function[Null,
-              MemberQ[$PackageContexts,Quiet[Context[#]]],
-              HoldAllComplete
-              ]
-            ):>
-            HoldComplete[sym],
-          \[Infinity]
+PackageFrameworkPackageLoad[pkg_PackageFrameworkPackage, dir_String?DirectoryQ]:=
+  With[
+    {baseContext = PackageFileContext[pkg, dir]},
+    If[AllTrue[StringSplit[baseContext, "`"], StringMatchQ[(WordCharacter|"$")..]],
+      Internal`WithLocalSettings[
+        Begin[baseContext],
+        PackageAddContexts[pkg, baseContext];
+        PackageFrameworkPackageLoad[
+          pkg,
+          dir, 
+          FileNameDrop[dir, FileNameDepth[PackageRoot[pkg, "Packages"]]]
           ],
-        HoldComplete
-        ],
-      HoldComplete[{s__}]:>
-        If[!$PackageDeclared&&ListQ@$PackageScopedSymbols,
-          $PackageScopedSymbols=
-            {
-              $PackageScopedSymbols,
-              newcont->
-                HoldComplete[s]
-              },
-          Block[{$AllowPackageRecoloring=True},
-            PackageFERehideSymbols[s]
-            ];
-          Map[
-            Function[Null,
-              Quiet[
-                Check[
-                  Set[Context[#], newcont],
-                  Remove[#],
-                  Context::cxdup
-                  ],
-                Context::cxdup
-                ],
-              HoldAllComplete
-              ],
-            HoldComplete[s]
-            ]//ReleaseHold;
+        End[];
+        ]
+      ]
+    ];
+PackageFrameworkPackageLoad[pkg_PackageFrameworkPackage, file_String?FileExistsQ]:=
+  PackageLoadDeclare[pkg, file];
+PackageFrameworkPackageLoad[pkg_PackageFrameworkPackage]:=
+  Block[
+    {
+      $PackageDeclarationList=
+        If[!AssociationQ@$PackageDeclarationList, 
+          <|pkg->{}|>, 
+          Append[$PackageDeclarationList,pkg->{}]
           ]
+      },
+      PackageExecute[
+        pkg,
+        SetProperty[pkg, "PackageListing"-><||>];
+        PackageFrameworkPackageLoad[
+          pkg,
+          PackageRoot[pkg, "Packages"],
+          PackageName[pkg]
+          ];
+        PackageDeclarePackage[
+          pkg,
+          #
+          ]&/@$PackageDeclarationList[pkg]
+        ]
+    ];
+PackageFrameworkPackageLoad~SetAttributes~Listable;
+
+
+(* ::Subsubsection::Closed:: *)
+(*PackageFrameworkPackageGet*)
+
+
+BindPackageMethod["Get", PackageFrameworkPackageGet]
+
+
+PackageFrameworkPackageGet//Clear
+PackageFrameworkPackageGet[pkg_PackageFrameworkPackage, f_]:=
+  PackageFrameworkPackageGet[pkg, PackageFileContext[pkg, f], f];
+PackageFrameworkPackageGet[pkg_PackageFrameworkPackage, c_, f_]:=
+  PackageExecute[
+      pkg,
+      Get@PackageFileFromName[pkg, f],
+      c
       ];
-    res
+
+
+(* ::Subsubsection::Closed:: *)
+(*PackageFrameworkPackageNeeds*)
+
+
+BindPackageMethod["Needs", PackageFrameworkPackageNeeds]
+
+
+PackageFrameworkPackageNeeds[pkg_, pkgFile_String?FileExistsQ]:=
+  If[!MemberQ[PackageLoadedPackages[pkg], pkgFile],
+    If[KeyMemberQ[PackageDeclaredPackages[pkg], pkgFile],
+      PackageLoadDeclare[pkg, pkgFile],
+      Do[PackageLoadDeclare[pkg, pkgFile], 2] (* why twice...? *)
+      ];
     ];
-PackageScopeBlock[e_, scope_String:"Package"]/;Not@TrueQ[$AllowPackageRescoping]:=
-  If[$PackageScopeBlockEvalExpr,e];
-PackageScopeBlock~SetAttributes~HoldFirst;
 
 
-(* ::Subsubsection:: *)
-(*PackageExposeContexts*)
+PackageFrameworkPackageNeeds[pkg_, pkgName_String]:=
+  Module[{pf=PackageFilePath[pkg, "Packages", pkgName<>".m"]},
+    If[!FileExistsQ@pf, PackageFilePath[pkg, "Packages", pkgName<>".wl"]];
+    If[FileExistsQ@pf,
+      PackageFrameworkPackageNeeds[pkg, pf],\.00 \.00
+      $Failed
+      ]
+   ];
 
 
-PackageExposeContexts[]:=
-  If[ListQ@$PackageLoadSpecs["ExtraContexts"],
-    PackageExtendContextPath@$PackageLoadSpecs["ExtraContexts"]
-    ];
-
-
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*PackageEnsureLoad*)
 
 
-PackageEnsureLoad[]:=
-  If[!TrueQ[$pkgLoaded],
-    $pkgLoaded=True;
-    PackageEnsureLoadDependencies[];
-    PackageExposeContexts[];
+PackageEnsureLoad[pkg_]:=
+  If[!TrueQ[PropertyValue[pkg, "LoadingFlag"]],
+    SetProperty[pkg, "LoadingFlag"->True];
+    PackageEnsureLoadDependencies[pkg];
+    PackageExposeContexts[pkg];
     ];
 
 
-(* ::Subsubsection:: *)
-(*PackageDecontext*)
+(* ::Subsubsection::Closed:: *)
+(*PackageCompleteLoadProcess*)
 
 
-PackageDecontext[
-  pkgFile_String?(KeyMemberQ[$DeclaredPackages,#]&),
-  scope:_String?(StringFreeQ["`"]):"Package",
-  context:_String?(StringEndsQ["`"]):"`PackageScope`"
-  ]/;TrueQ[$AllowPackageRescoping]:=
-  With[{
-    names=$DeclaredPackages[pkgFile],
-    ctx=
-     If[StringStartsQ[context, "`"],
-      "$Name"<>context<>scope<>"`",
-      context<>scope<>"`"
-      ]
-    },
-    Replace[names,
-      Verbatim[HoldPattern][s_]:>
-        Set[Context[s], ctx],
-      1
-      ]
-    ];
+PackageCompleteLoadProcess::doc="
+Handles stuff like making sure things that need to get pushed to a lower context do and that symbol \
+coloring is turned off for the symbols where it should be turned off and all that
+";
+PackageCompleteLoadProcess[pkg_]:=
+  (
+    PackageFrameworkPackageGet[pkg, #]&/@
+      PackagePreloadedPackages[pkg];
+    PackageManageFrontEndSymbols[pkg];
+    pkg
+    )
 
 
-(* ::Subsubsection:: *)
-(*PackageRecontext*)
-
-
-PackageRecontext[
-  pkgFile_String?(KeyMemberQ[$DeclaredPackages,#]&)
-  ]/;TrueQ[$AllowPackageRescoping]:=
-  With[{
-    names=$DeclaredPackages[pkgFile],
-    ctx=PackageFileContext[pkgFile]
-    },
-    Replace[names,
-      Verbatim[HoldPattern][s_]:>
-        Set[Context[s],ctx],
-      1
-      ]
-    ];
-
-
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*End*)
 
 
